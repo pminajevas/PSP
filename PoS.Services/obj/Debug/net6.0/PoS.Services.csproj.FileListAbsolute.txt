@@ -1,0 +1,11 @@
+D:\Projektai\PoS\PoS.Services\bin\Debug\net6.0\PoS.Services.deps.json
+D:\Projektai\PoS\PoS.Services\bin\Debug\net6.0\PoS.Services.dll
+D:\Projektai\PoS\PoS.Services\bin\Debug\net6.0\PoS.Services.pdb
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.AssemblyInfoInputs.cache
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.AssemblyInfo.cs
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.csproj.CoreCompileInputs.cache
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.dll
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\refint\PoS.Services.dll
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.pdb
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\ref\PoS.Services.dll

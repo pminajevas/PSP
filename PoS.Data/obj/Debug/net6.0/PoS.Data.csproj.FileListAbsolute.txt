@@ -1,0 +1,14 @@
+D:\Projektai\PoS\PoS.Data\bin\Debug\net6.0\PoS.Data.deps.json
+D:\Projektai\PoS\PoS.Data\bin\Debug\net6.0\PoS.Data.runtimeconfig.json
+D:\Projektai\PoS\PoS.Data\bin\Debug\net6.0\PoS.Data.dll
+D:\Projektai\PoS\PoS.Data\bin\Debug\net6.0\PoS.Data.pdb
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\PoS.Data.csproj.AssemblyReference.cache
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\PoS.Data.GeneratedMSBuildEditorConfig.editorconfig
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\PoS.Data.AssemblyInfoInputs.cache
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\PoS.Data.AssemblyInfo.cs
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\PoS.Data.csproj.CoreCompileInputs.cache
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\PoS.Data.dll
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\refint\PoS.Data.dll
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\PoS.Data.pdb
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\PoS.Data.genruntimeconfig.cache
+D:\Projektai\PoS\PoS.Data\obj\Debug\net6.0\ref\PoS.Data.dll
