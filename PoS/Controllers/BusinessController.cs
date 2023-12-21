@@ -5,16 +5,35 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
-using IO.Swagger.Models;
+using PoS.Services.Services;
+using PoS.Shared.Utilities;
+using PoS.API.Helpers;
+using PoS.Shared.RequestDTOs;
+using PoS.Shared.ResponseDTOs;
+using PoS.Data;
+using System.Security.Claims;
 
-namespace IO.Swagger.Controllers
-{ 
+namespace PoS.Controllers
+{
     /// <summary>
     /// 
     /// </summary>
     [ApiController]
     public class BusinessApiController : ControllerBase
-    { 
+    {
+        private IBusinessService _businessService;
+        private IUserService _userService;
+        private IFilterValidator _validator;
+        public BusinessApiController(IBusinessService businessService, IUserService userService, IFilterValidator validator)
+        {
+            _businessService = businessService;
+            _validator = validator;
+            _userService = userService;
+        }
+
+
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -22,11 +41,33 @@ namespace IO.Swagger.Controllers
         /// <response code="204">No Content</response>
         [HttpDelete]
         [Route("/Business/Business/{businessId}")]
-        public virtual IActionResult BusinessBusinessBusinessIdDelete([FromRoute][Required]Guid? businessId)
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> DeleteBusinessAsync([FromRoute][Required]Guid businessId)
         {
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204);
-            throw new NotImplementedException();
+            try
+            {
+                var businessIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                var loginName = User.FindFirst(ClaimTypes.Name)!.Value;
+                if (User.IsInRole("Admin") ||
+                    (businessIdClaim != null &&
+                    Guid.TryParse(businessIdClaim.Value, out var businessIdFromToken) &&
+                    await _userService.HasAccessToBusinessAsync(loginName, businessIdFromToken) &&
+                    businessId == businessIdFromToken))
+                {
+
+                        if (await _businessService.DeleteBusinessAsync(businessId) == true)
+                        {
+                            return Ok();
+                        }
+                        return NotFound();
+
+                }
+                else return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         /// <summary>
@@ -36,17 +77,36 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/Business/Business/{businessId}")]
-        public virtual IActionResult BusinessBusinessBusinessIdGet([FromRoute][Required]Guid? businessId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Business));
-            string exampleJson = null;
-            exampleJson = "{\n  \"businessName\" : \"businessName\",\n  \"location\" : \"location\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Business>(exampleJson)
-                        : default(Business);            //TODO: Change the data returned
-            return new ObjectResult(example);
+        [ActionName("GetBusiness")]
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> GetBusinessAsync([FromRoute][Required]Guid businessId)
+        {
+            try
+            {
+                var businessIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                var loginName = User.FindFirst(ClaimTypes.Name)!.Value;
+                if (User.IsInRole("Admin") ||
+                    (businessIdClaim != null &&
+                    Guid.TryParse(businessIdClaim.Value, out var businessIdFromToken) &&
+                    await _userService.HasAccessToBusinessAsync(loginName, businessIdFromToken) &&
+                    businessId == businessIdFromToken))
+                {
+                    var result = await _businessService.GetBusinessByIdAsync(businessId);
+                    if (result != null)
+                    {
+                        return Ok(result);
+                    }
+                    else
+                    {
+                        return NotFound();
+                    }
+                }
+                else return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         /// <summary>
@@ -57,18 +117,35 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpPut]
         [Route("/Business/Business/{businessId}")]
-        public virtual IActionResult BusinessBusinessBusinessIdPut([FromRoute][Required]string businessId, [FromBody]Business body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Order));
-            string exampleJson = null;
-            exampleJson = "{\n  \"date\" : \"2000-01-23T04:56:07.000+00:00\",\n  \"totalAmount\" : 0.8008281904610115,\n  \"taxId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"customerId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"tip\" : 6.027456183070403,\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"status\" : \"Paid\"\n}";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Order>(exampleJson)
-                        : default(Order);            //TODO: Change the data returned
-            return new ObjectResult(example);
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> UpdateBusinessAsync([FromRoute][Required]Guid businessId, [FromBody]BusinessRequest business)
+        {
+            try
+            {
+                var businessIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+                var loginName = User.FindFirst(ClaimTypes.Name)!.Value;
+                if (User.IsInRole("Admin") ||
+                    (businessIdClaim != null &&
+                    Guid.TryParse(businessIdClaim.Value, out var businessIdFromToken) &&
+                    await _userService.HasAccessToBusinessAsync(loginName, businessIdFromToken) &&
+                    businessId == businessIdFromToken))
+                {
+                    var updatedBusiness = await _businessService.UpdateBusinessAsync(business, businessId);
+                    if (updatedBusiness != null)
+                    {
+                        return Ok(updatedBusiness);
+                    }
+                    return NotFound();
+                }
+                else return Forbid();
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
+ 
         }
+
 
         /// <summary>
         /// 
@@ -77,17 +154,19 @@ namespace IO.Swagger.Controllers
         /// <response code="201">Created</response>
         [HttpPost]
         [Route("/Business/Business")]
-        public virtual IActionResult BusinessBusinessPost([FromBody]Business body)
-        { 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(Business));
-            string exampleJson = null;
-            exampleJson = "{\n  \"businessName\" : \"businessName\",\n  \"location\" : \"location\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Business>(exampleJson)
-                        : default(Business);            //TODO: Change the data returned
-            return new ObjectResult(example);
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> CreateBusinessAsync([FromBody]BusinessRequest business)
+        {
+            try
+            {
+                var newBusiness = await _businessService.AddBusinessAsync(business);
+                return CreatedAtAction("GetBusiness", new { businessId = newBusiness.Id }, newBusiness);
+
+            }
+            catch (Exception ex)
+            {
+                return Problem(ex.Message);
+            }
         }
 
         /// <summary>
@@ -101,17 +180,30 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/Business/Businesses")]
-        public virtual IActionResult BusinessBusinessesGet([FromQuery]string location, [FromQuery]string orderBy, [FromQuery]string sorting, [FromQuery]int? pageIndex, [FromQuery]int? pageSize)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<Business>));
-            string exampleJson = null;
-            exampleJson = "[ {\n  \"businessName\" : \"businessName\",\n  \"location\" : \"location\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}, {\n  \"businessName\" : \"businessName\",\n  \"location\" : \"location\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n} ]";
+        public async Task<IActionResult> GetBusinessesAsync([FromQuery]string? location = null, [FromQuery]string? orderBy = null, [FromQuery]string? sorting = null, [FromQuery]int? pageIndex = null, [FromQuery]int? pageSize = null)
+        {
+            Filter filter = new Filter();
+
+            // Add supported parameters using the AddParameter method
+            filter.AddParameter("Location", location);
+            filter.AddParameter("OrderBy", orderBy);
+            filter.AddParameter("Sorting", sorting);
+            filter.AddParameter("PageIndex", pageIndex);
+            filter.AddParameter("PageSize", pageSize);
+            if (_validator.ValidateFilter(filter))
+            {
+                try
+                {
+                    return Ok(await _businessService.GetAllBusinessesAsync(filter));
+                }
+                catch (Exception ex)
+                {
+                    return Problem(ex.Message);
+                }
+                
+            }
+            return BadRequest("Incorrect filters");
             
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<Business>>(exampleJson)
-                        : default(List<Business>);            //TODO: Change the data returned
-            return new ObjectResult(example);
         }
     }
 }

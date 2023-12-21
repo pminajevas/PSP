@@ -104,13 +104,13 @@ namespace PoS.Data.Migrations
             modelBuilder.Entity("PoS.Data.Customer", b =>
                 {
                     b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid?>("BusinessId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Address")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -132,6 +132,10 @@ namespace PoS.Data.Migrations
 
                     b.Property<double?>("Points")
                         .HasColumnType("float");
+
+                    b.Property<Guid?>("UserId")
+                        .IsRequired()
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id", "BusinessId");
 
@@ -351,16 +355,42 @@ namespace PoS.Data.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
-                    b.Property<int>("UserRole")
-                        .HasColumnType("int");
+                    b.Property<string>("RoleName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.ToTable("Roles");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("07ce4f6b-22a9-422a-803b-2dfe4562b677"),
+                            Description = "Administrator has access to all operations",
+                            RoleName = "Admin"
+                        },
+                        new
+                        {
+                            Id = new Guid("5f5aebb8-7fa7-43fc-a9f4-3bf272648c72"),
+                            Description = "Manager has access to all operations in the business",
+                            RoleName = "Manager"
+                        },
+                        new
+                        {
+                            Id = new Guid("790d8e8e-a1fb-4181-a797-dd3d3dff2a29"),
+                            Description = "Staff has access to most common operations in the business",
+                            RoleName = "Staff"
+                        },
+                        new
+                        {
+                            Id = new Guid("497bc919-5151-40e0-bb12-392f170ea584"),
+                            Description = "Customer has access to operations related to customer self-service",
+                            RoleName = "Customer"
+                        });
                 });
 
             modelBuilder.Entity("PoS.Data.Service", b =>
@@ -405,7 +435,7 @@ namespace PoS.Data.Migrations
 
             modelBuilder.Entity("PoS.Data.Staff", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -434,9 +464,12 @@ namespace PoS.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RolesAsString")
+                    b.Property<string>("RoleName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
@@ -478,6 +511,33 @@ namespace PoS.Data.Migrations
                     b.ToTable("Taxes");
                 });
 
+            modelBuilder.Entity("PoS.Data.User", b =>
+                {
+                    b.Property<Guid?>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LoginName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<byte[]>("PasswordHash")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<byte[]>("PasswordSalt")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("RoleName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
             modelBuilder.Entity("PoS.Data.UserLogin", b =>
                 {
                     b.Property<Guid?>("Id")
@@ -488,18 +548,9 @@ namespace PoS.Data.Migrations
                         .IsRequired()
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("LoginName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
                     b.Property<DateTime?>("LogoutDate")
                         .IsRequired()
                         .HasColumnType("datetime2");
-
-                    b.Property<string>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("UserId")
                         .IsRequired()

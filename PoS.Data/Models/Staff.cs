@@ -5,8 +5,12 @@ namespace PoS.Data
 {
     public class Staff
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
+
+        [Required]
+        public Guid UserId { get; set; }
 
         [Required]
         [MaxLength(50)]
@@ -27,14 +31,9 @@ namespace PoS.Data
 
         [Required]
         public Guid? BusinessId { get; set; }
+        
+        [Required]
+        public string? RoleName { get; set; }
 
-        public string RolesAsString
-        {
-            get => string.Join(",", Roles.Select(role => role.ToString()));
-            set => Roles = value.Split(',').Select(Guid.Parse).ToList();
-        }
-
-        [NotMapped]
-        public List<Guid> Roles { get; set; }
     }
 }

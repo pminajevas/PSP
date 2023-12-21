@@ -16,17 +16,17 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Authorization;
-using IO.Swagger.Models;
+using PoS.Data;
 
-namespace IO.Swagger.Controllers
-{ 
+namespace PoS.Controllers
+{
     /// <summary>
     /// 
     /// </summary>
     [ApiController]
     public class OrdersApiController : ControllerBase
     { 
-        /// <summary>
+        /*/// <summary>
         /// 
         /// </summary>
         /// <param name="appointmentId"></param>
@@ -376,6 +376,6 @@ namespace IO.Swagger.Controllers
                         ? JsonConvert.DeserializeObject<List<Order>>(exampleJson)
                         : default(List<Order>);            //TODO: Change the data returned
             return new ObjectResult(example);
-        }
+        }*/
     }
 }

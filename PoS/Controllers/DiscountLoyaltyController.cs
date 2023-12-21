@@ -16,17 +16,16 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Authorization;
-using IO.Swagger.Models;
 
-namespace IO.Swagger.Controllers
-{ 
+namespace PoS.Controllers
+{
     /// <summary>
     /// 
     /// </summary>
     [ApiController]
     public class DiscountLoyaltyApiController : ControllerBase
     { 
-        /// <summary>
+        /*/// <summary>
         /// 
         /// </summary>
         /// <param name="couponId"></param>
@@ -48,7 +47,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/DiscountLoyalty/Coupon/{couponId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Coupon), description: "Success")]
+        [SwaggerResponse(statusCode: 200, type: typeof(CouponDTO), description: "Success")]
         public virtual IActionResult DiscountLoyaltyCouponCouponIdGet([FromRoute][Required]Guid? couponId)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
@@ -70,8 +69,8 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpPut]
         [Route("/DiscountLoyalty/Coupon/{couponId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Coupon), description: "Success")]
-        public virtual IActionResult DiscountLoyaltyCouponCouponIdPut([FromRoute][Required]string couponId, [FromBody]Coupon body)
+        [SwaggerResponse(statusCode: 200, type: typeof(CouponDTO), description: "Success")]
+        public virtual IActionResult DiscountLoyaltyCouponCouponIdPut([FromRoute][Required]string couponId, [FromBody] CouponDTO body)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(200, default(Coupon));
@@ -91,8 +90,8 @@ namespace IO.Swagger.Controllers
         /// <response code="201">Created</response>
         [HttpPost]
         [Route("/DiscountLoyalty/Coupon")]
-        [SwaggerResponse(statusCode: 201, type: typeof(Coupon), description: "Created")]
-        public virtual IActionResult DiscountLoyaltyCouponPost([FromBody]Coupon body)
+        [SwaggerResponse(statusCode: 201, type: typeof(CouponDTO), description: "Created")]
+        public virtual IActionResult DiscountLoyaltyCouponPost([FromBody] CouponDTO body)
         { 
             //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(201, default(Coupon));
@@ -154,7 +153,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/DiscountLoyalty/Discount/{discountId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Discount), description: "Success")]
+        [SwaggerResponse(statusCode: 200, type: typeof(DiscountDTO), description: "Success")]
         public virtual IActionResult DiscountLoyaltyDiscountDiscountIdGet([FromRoute][Required]Guid? discountId)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
@@ -176,8 +175,8 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpPut]
         [Route("/DiscountLoyalty/Discount/{discountId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Discount), description: "Success")]
-        public virtual IActionResult DiscountLoyaltyDiscountDiscountIdPut([FromRoute][Required]string discountId, [FromBody]Discount body)
+        [SwaggerResponse(statusCode: 200, type: typeof(DiscountDTO), description: "Success")]
+        public virtual IActionResult DiscountLoyaltyDiscountDiscountIdPut([FromRoute][Required]string discountId, [FromBody] DiscountDTO body)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(200, default(Discount));
@@ -197,8 +196,8 @@ namespace IO.Swagger.Controllers
         /// <response code="201">Created</response>
         [HttpPost]
         [Route("/DiscountLoyalty/Discount")]
-        [SwaggerResponse(statusCode: 201, type: typeof(Discount), description: "Created")]
-        public virtual IActionResult DiscountLoyaltyDiscountPost([FromBody]Discount body)
+        [SwaggerResponse(statusCode: 201, type: typeof(DiscountDTO), description: "Created")]
+        public virtual IActionResult DiscountLoyaltyDiscountPost([FromBody] DiscountDTO body)
         { 
             //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(201, default(Discount));
@@ -258,7 +257,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/DiscountLoyalty/LoyaltyProgram/{loyaltyProgramId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(LoyaltyProgram), description: "Success")]
+        [SwaggerResponse(statusCode: 200, type: typeof(LoyaltyProgramDTO), description: "Success")]
         public virtual IActionResult DiscountLoyaltyLoyaltyProgramLoyaltyProgramIdGet([FromRoute][Required]Guid? loyaltyProgramId)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
@@ -267,8 +266,8 @@ namespace IO.Swagger.Controllers
             exampleJson = "{\n  \"redemptionRules\" : \"redemptionRules\",\n  \"specialBenefits\" : \"specialBenefits\",\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"pointsPerPurchase\" : 0.8008281904610115\n}";
             
                         var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<LoyaltyProgram>(exampleJson)
-                        : default(LoyaltyProgram);            //TODO: Change the data returned
+                        ? JsonConvert.DeserializeObject<LoyaltyProgramDTO>(exampleJson)
+                        : default(LoyaltyProgramDTO);            //TODO: Change the data returned
             return new ObjectResult(example);
         }
 
@@ -280,8 +279,8 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpPut]
         [Route("/DiscountLoyalty/LoyaltyProgram/{loyaltyProgramId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(LoyaltyProgram), description: "Success")]
-        public virtual IActionResult DiscountLoyaltyLoyaltyProgramLoyaltyProgramIdPut([FromRoute][Required]string loyaltyProgramId, [FromBody]LoyaltyProgram body)
+        [SwaggerResponse(statusCode: 200, type: typeof(LoyaltyProgramDTO), description: "Success")]
+        public virtual IActionResult DiscountLoyaltyLoyaltyProgramLoyaltyProgramIdPut([FromRoute][Required]string loyaltyProgramId, [FromBody] LoyaltyProgramDTO body)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(200, default(LoyaltyProgram));
@@ -289,8 +288,8 @@ namespace IO.Swagger.Controllers
             exampleJson = "{\n  \"redemptionRules\" : \"redemptionRules\",\n  \"specialBenefits\" : \"specialBenefits\",\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"pointsPerPurchase\" : 0.8008281904610115\n}";
             
                         var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<LoyaltyProgram>(exampleJson)
-                        : default(LoyaltyProgram);            //TODO: Change the data returned
+                        ? JsonConvert.DeserializeObject<LoyaltyProgramDTO>(exampleJson)
+                        : default(LoyaltyProgramDTO);            //TODO: Change the data returned
             return new ObjectResult(example);
         }
 
@@ -301,8 +300,8 @@ namespace IO.Swagger.Controllers
         /// <response code="201">Created</response>
         [HttpPost]
         [Route("/DiscountLoyalty/LoyaltyProgram")]
-        [SwaggerResponse(statusCode: 201, type: typeof(LoyaltyProgram), description: "Created")]
-        public virtual IActionResult DiscountLoyaltyLoyaltyProgramPost([FromBody]LoyaltyProgram body)
+        [SwaggerResponse(statusCode: 201, type: typeof(LoyaltyProgramDTO), description: "Created")]
+        public virtual IActionResult DiscountLoyaltyLoyaltyProgramPost([FromBody] LoyaltyProgramDTO body)
         { 
             //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(201, default(LoyaltyProgram));
@@ -326,7 +325,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/DiscountLoyalty/LoyaltyPrograms")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<LoyaltyProgram>), description: "Success")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<LoyaltyProgramDTO>), description: "Success")]
         public virtual IActionResult DiscountLoyaltyLoyaltyProgramsGet([FromQuery]Guid? businessId, [FromQuery]string orderBy, [FromQuery]string sorting, [FromQuery]int? pageIndex, [FromQuery]int? pageSize)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
@@ -338,6 +337,6 @@ namespace IO.Swagger.Controllers
                         ? JsonConvert.DeserializeObject<List<LoyaltyProgram>>(exampleJson)
                         : default(List<LoyaltyProgram>);            //TODO: Change the data returned
             return new ObjectResult(example);
-        }
+        }*/
     }
 }

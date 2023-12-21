@@ -1,9 +1,11 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PoS.Data
 {
     public class Order
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid? Id { get; set; }
 
@@ -17,14 +19,14 @@ namespace PoS.Data
 
         public Guid? TaxId { get; set; }
 
-        public enum StatusEnum
+        public enum OrderStatusEnum
         {
             PaidEnum = 0,
             UnpaidEnum = 1
         }
 
         [Required]
-        public StatusEnum? Status { get; set; }
+        public OrderStatusEnum? Status { get; set; }
 
         [Required]
         public DateTime? Date { get; set; }

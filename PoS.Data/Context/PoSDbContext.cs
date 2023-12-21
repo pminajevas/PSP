@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 
+
 namespace PoS.Data.Context
 {
     public class PoSDbContext : DbContext
@@ -22,6 +23,8 @@ namespace PoS.Data.Context
         public DbSet<Staff> StaffMembers { get; set; }
         public DbSet<UserLogin> UserLogins { get; set; }
 
+        public DbSet<User> Users { get; set; }
+
         public DbSet<Appointment> Appointments { get; set; }
 
         public DbSet<Discount> Discounts { get; set; }
@@ -37,6 +40,7 @@ namespace PoS.Data.Context
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+
             modelBuilder.Entity<Order>()
                 .Property(e => e.Status)
                 .HasConversion<int>();
@@ -53,9 +57,6 @@ namespace PoS.Data.Context
                 .Property(e => e.Status)
                 .HasConversion<int>();
 
-            modelBuilder.Entity<Role>()
-                .Property(e => e.UserRole)
-                .HasConversion<int>();
 
             modelBuilder.Entity<Tax>()
                 .Property(e => e.Category)
@@ -63,6 +64,19 @@ namespace PoS.Data.Context
             modelBuilder.Entity<Customer>()
                 .HasKey(c => new { c.Id, c.BusinessId });
 
+
+            Seed(modelBuilder);
+
+        }
+
+        private void Seed(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Role>().HasData(
+                new Role { Id = Guid.NewGuid(), RoleName = "Admin", Description = "Administrator has access to all operations" },
+                new Role { Id = Guid.NewGuid(), RoleName = "Manager", Description = "Manager has access to all operations in the business"},
+                new Role { Id = Guid.NewGuid(), RoleName = "Staff", Description = "Staff has access to most common operations in the business" },
+                new Role { Id = Guid.NewGuid(), RoleName = "Customer", Description = "Customer has access to operations related to customer self-service" }
+            );
         }
     }
 }

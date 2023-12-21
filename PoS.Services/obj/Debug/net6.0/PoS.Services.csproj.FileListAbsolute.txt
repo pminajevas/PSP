@@ -9,3 +9,9 @@ D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.dll
 D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\refint\PoS.Services.dll
 D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.pdb
 D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\ref\PoS.Services.dll
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.csproj.AssemblyReference.cache
+D:\Projektai\PoS\PoS.Services\bin\Debug\net6.0\PoS.Data.dll
+D:\Projektai\PoS\PoS.Services\bin\Debug\net6.0\PoS.Data.pdb
+D:\Projektai\PoS\PoS.Services\obj\Debug\net6.0\PoS.Services.csproj.CopyComplete
+D:\Projektai\PoS\PoS.Services\bin\Debug\net6.0\PoS.Shared.dll
+D:\Projektai\PoS\PoS.Services\bin\Debug\net6.0\PoS.Shared.pdb

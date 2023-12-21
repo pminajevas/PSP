@@ -72,3 +72,8 @@ D:\Projektai\PoS\PoS\obj\Debug\net6.0\PoS.API.genruntimeconfig.cache
 D:\Projektai\PoS\PoS\obj\Debug\net6.0\ref\PoS.API.dll
 D:\Projektai\PoS\PoS\bin\Debug\net6.0\Humanizer.dll
 D:\Projektai\PoS\PoS\bin\Debug\net6.0\Microsoft.EntityFrameworkCore.Design.dll
+D:\Projektai\PoS\PoS\bin\Debug\net6.0\PoS.Shared.dll
+D:\Projektai\PoS\PoS\bin\Debug\net6.0\PoS.Shared.pdb
+D:\Projektai\PoS\PoS\bin\Debug\net6.0\AutoMapper.dll
+D:\Projektai\PoS\PoS\bin\Debug\net6.0\System.Linq.Dynamic.Core.dll
+D:\Projektai\PoS\PoS\bin\Debug\net6.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll

@@ -1,26 +1,18 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PoS.Data
 {
     public class Role
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid? Id { get; set; }
 
-        public enum UserRoleEnum
-        {
-            AdministratorEnum = 0,
-            ManagerEnum = 1,
-            StaffEnum = 2,
-            WaiterEnum = 3,
-            HairdresserEnum = 4,
-            ChefEnum = 5
-        }
-
         [Required]
-        public UserRoleEnum? UserRole { get; set; }
+        public string RoleName { get; set; }
 
         [MaxLength(500)]
-        public string Description { get; set; }
+        public string? Description { get; set; }
     }
 }

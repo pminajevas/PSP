@@ -16,17 +16,17 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 
 using Microsoft.AspNetCore.Authorization;
-using IO.Swagger.Models;
+using PoS.Data;
 
-namespace IO.Swagger.Controllers
-{ 
+namespace PoS.Controllers
+{
     /// <summary>
     /// 
     /// </summary>
     [ApiController]
     public class PaymentsApiController : ControllerBase
     { 
-        /// <summary>
+/*        /// <summary>
         /// 
         /// </summary>
         /// <param name="paymentMethodId"></param>
@@ -48,7 +48,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/Payments/PaymentMethod/{paymentMethodId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(PaymentMethod), description: "Success")]
+        [SwaggerResponse(statusCode: 200, type: typeof(PaymentMethodDTO), description: "Success")]
         public virtual IActionResult PaymentsPaymentMethodPaymentMethodIdGet([FromRoute][Required]Guid? paymentMethodId)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
@@ -70,7 +70,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpPut]
         [Route("/Payments/PaymentMethod/{paymentMethodId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(PaymentMethod), description: "Success")]
+        [SwaggerResponse(statusCode: 200, type: typeof(PaymentMethodDTO), description: "Success")]
         public virtual IActionResult PaymentsPaymentMethodPaymentMethodIdPut([FromRoute][Required]string paymentMethodId, [FromBody]PaymentMethod body)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
@@ -91,8 +91,8 @@ namespace IO.Swagger.Controllers
         /// <response code="201">Created</response>
         [HttpPost]
         [Route("/Payments/PaymentMethod")]
-        [SwaggerResponse(statusCode: 201, type: typeof(PaymentMethod), description: "Created")]
-        public virtual IActionResult PaymentsPaymentMethodPost([FromBody]PaymentMethod body)
+        [SwaggerResponse(statusCode: 201, type: typeof(PaymentMethodDTO), description: "Created")]
+        public virtual IActionResult PaymentsPaymentMethodPost([FromBody] PaymentMethodDTO body)
         { 
             //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(201, default(PaymentMethod));
@@ -127,7 +127,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/Payments/Payment/{paymentId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Payment), description: "Success")]
+        [SwaggerResponse(statusCode: 200, type: typeof(PaymentDTO), description: "Success")]
         public virtual IActionResult PaymentsPaymentPaymentIdGet([FromRoute][Required]Guid? paymentId)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
@@ -149,7 +149,7 @@ namespace IO.Swagger.Controllers
         /// <response code="200">Success</response>
         [HttpPut]
         [Route("/Payments/Payment/{paymentId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Payment), description: "Success")]
+        [SwaggerResponse(statusCode: 200, type: typeof(PaymentDTO), description: "Success")]
         public virtual IActionResult PaymentsPaymentPaymentIdPut([FromRoute][Required]string paymentId, [FromBody]Payment body)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
@@ -211,6 +211,6 @@ namespace IO.Swagger.Controllers
                         ? JsonConvert.DeserializeObject<List<Payment>>(exampleJson)
                         : default(List<Payment>);            //TODO: Change the data returned
             return new ObjectResult(example);
-        }
+        }*/
     }
 }

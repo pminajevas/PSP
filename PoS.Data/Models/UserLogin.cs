@@ -1,21 +1,16 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PoS.Data
 {
     public class UserLogin
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
         public Guid? Id { get; set; }
 
         [Required]
         public Guid? UserId { get; set; }
-
-        [Required]
-        [MaxLength(50)]
-        public string LoginName { get; set; }
-
-        [Required]
-        public string PasswordHash { get; set; }
 
         [Required]
         public DateTime? LoginDate { get; set; }
