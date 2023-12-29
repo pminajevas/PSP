@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "D:\\Projektai\\PoS\\PoS\\PoS.API.csproj": {}
+    "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS\\PoS.API.csproj": {}
   },
   "projects": {
-    "D:\\Projektai\\PoS\\PoS.Data\\PoS.Data.csproj": {
+    "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Data\\PoS.Data.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projektai\\PoS\\PoS.Data\\PoS.Data.csproj",
+        "projectUniqueName": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Data\\PoS.Data.csproj",
         "projectName": "PoS.Data",
-        "projectPath": "D:\\Projektai\\PoS\\PoS.Data\\PoS.Data.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\Projektai\\PoS\\PoS.Data\\obj\\",
+        "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Data\\PoS.Data.csproj",
+        "packagesPath": "C:\\Users\\Jorūnas\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Data\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jorūnas\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -26,14 +26,15 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "D:\\Projektai\\PoS\\PoS.Shared\\PoS.Shared.csproj": {
-                "projectPath": "D:\\Projektai\\PoS\\PoS.Shared\\PoS.Shared.csproj"
+              "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\PoS.Shared.csproj": {
+                "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\PoS.Shared.csproj"
               }
             }
           }
@@ -83,24 +84,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\Projektai\\PoS\\PoS.Services\\PoS.Services.csproj": {
+    "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Services\\PoS.Services.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projektai\\PoS\\PoS.Services\\PoS.Services.csproj",
+        "projectUniqueName": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Services\\PoS.Services.csproj",
         "projectName": "PoS.Services",
-        "projectPath": "D:\\Projektai\\PoS\\PoS.Services\\PoS.Services.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\Projektai\\PoS\\PoS.Services\\obj\\",
+        "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Services\\PoS.Services.csproj",
+        "packagesPath": "C:\\Users\\Jorūnas\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Services\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jorūnas\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -109,17 +110,18 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "D:\\Projektai\\PoS\\PoS.Data\\PoS.Data.csproj": {
-                "projectPath": "D:\\Projektai\\PoS\\PoS.Data\\PoS.Data.csproj"
+              "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Data\\PoS.Data.csproj": {
+                "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Data\\PoS.Data.csproj"
               },
-              "D:\\Projektai\\PoS\\PoS.Shared\\PoS.Shared.csproj": {
-                "projectPath": "D:\\Projektai\\PoS\\PoS.Shared\\PoS.Shared.csproj"
+              "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\PoS.Shared.csproj": {
+                "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\PoS.Shared.csproj"
               }
             }
           }
@@ -149,24 +151,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\Projektai\\PoS\\PoS.Shared\\PoS.Shared.csproj": {
+    "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\PoS.Shared.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projektai\\PoS\\PoS.Shared\\PoS.Shared.csproj",
+        "projectUniqueName": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\PoS.Shared.csproj",
         "projectName": "PoS.Shared",
-        "projectPath": "D:\\Projektai\\PoS\\PoS.Shared\\PoS.Shared.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\Projektai\\PoS\\PoS.Shared\\obj\\",
+        "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\PoS.Shared.csproj",
+        "packagesPath": "C:\\Users\\Jorūnas\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jorūnas\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -175,6 +177,7 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -208,24 +211,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "D:\\Projektai\\PoS\\PoS\\PoS.API.csproj": {
+    "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS\\PoS.API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\Projektai\\PoS\\PoS\\PoS.API.csproj",
+        "projectUniqueName": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS\\PoS.API.csproj",
         "projectName": "PoS.API",
-        "projectPath": "D:\\Projektai\\PoS\\PoS\\PoS.API.csproj",
-        "packagesPath": "C:\\Users\\User\\.nuget\\packages\\",
-        "outputPath": "D:\\Projektai\\PoS\\PoS\\obj\\",
+        "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS\\PoS.API.csproj",
+        "packagesPath": "C:\\Users\\Jorūnas\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\User\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\Jorūnas\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -234,20 +237,21 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
+          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
           "net6.0": {
             "targetAlias": "net6.0",
             "projectReferences": {
-              "D:\\Projektai\\PoS\\PoS.Data\\PoS.Data.csproj": {
-                "projectPath": "D:\\Projektai\\PoS\\PoS.Data\\PoS.Data.csproj"
+              "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Data\\PoS.Data.csproj": {
+                "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Data\\PoS.Data.csproj"
               },
-              "D:\\Projektai\\PoS\\PoS.Services\\PoS.Services.csproj": {
-                "projectPath": "D:\\Projektai\\PoS\\PoS.Services\\PoS.Services.csproj"
+              "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Services\\PoS.Services.csproj": {
+                "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Services\\PoS.Services.csproj"
               },
-              "D:\\Projektai\\PoS\\PoS.Shared\\PoS.Shared.csproj": {
-                "projectPath": "D:\\Projektai\\PoS\\PoS.Shared\\PoS.Shared.csproj"
+              "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\PoS.Shared.csproj": {
+                "projectPath": "C:\\Users\\Jorūnas\\Documents\\GitHub\\PSP\\PoS.Shared\\PoS.Shared.csproj"
               }
             }
           }
@@ -304,7 +308,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.100\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\7.0.100\\RuntimeIdentifierGraph.json"
         }
       }
     }

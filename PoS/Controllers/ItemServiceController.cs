@@ -14,6 +14,7 @@ using Swashbuckle.AspNetCore.Annotations;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
+using PoS.Services.Services;
 
 using Microsoft.AspNetCore.Authorization;
 
@@ -24,21 +25,28 @@ namespace PoS.Controllers
     /// </summary>
     [ApiController]
     public class ItemServiceApiController : ControllerBase
-    { 
-        /*/// <summary>
+    {
+        ItemService _itemService;
+
+        public ItemServiceApiController(ItemService itemService)
+        {
+            _itemService = itemService;
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="itemId"></param>
         /// <response code="204">No Content</response>
-        [HttpDelete]
-        [Route("/ItemService/Item/{itemId}")]
-        public virtual IActionResult ItemServiceItemItemIdDelete([FromRoute][Required]Guid? itemId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204);
+        //[HttpDelete]
+        //[Route("/ItemService/Item/{itemId}")]
+        //public virtual IActionResult ItemServiceItemItemIdDelete([FromRoute][Required]Guid? itemId)
+        //{ 
+        //    //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+        //    // return StatusCode(204);
 
-            throw new NotImplementedException();
-        }
+        //    throw new NotImplementedException();
+        //}
 
         /// <summary>
         /// 
@@ -47,18 +55,16 @@ namespace PoS.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/ItemService/Item/{itemId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Item), description: "Success")]
-        public virtual IActionResult ItemServiceItemItemIdGet([FromRoute][Required]Guid? itemId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Item));
-            string exampleJson = null;
-            exampleJson = "{\n  \"itemName\" : \"itemName\",\n  \"price\" : 0.8008281904610115,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"itemDescription\" : \"itemDescription\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
-            
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Item>(exampleJson)
-                        : default(Item);            //TODO: Change the data returned
-            return new ObjectResult(example);
+        public async Task<IActionResult> GetItemAsync([FromRoute][Required]Guid itemId)
+        {
+            var result = await _itemService.GetItemByIdAsync(itemId);
+
+            if(result != null)
+            {
+                return Ok(result);
+            }
+
+            return NotFound();
         }
 
         /// <summary>
@@ -67,173 +73,173 @@ namespace PoS.Controllers
         /// <param name="itemId"></param>
         /// <param name="body"></param>
         /// <response code="200">Success</response>
-        [HttpPut]
-        [Route("/ItemService/Item/{itemId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Item), description: "Success")]
-        public virtual IActionResult ItemServiceItemItemIdPut([FromRoute][Required]string itemId, [FromBody]Item body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Item));
-            string exampleJson = null;
-            exampleJson = "{\n  \"itemName\" : \"itemName\",\n  \"price\" : 0.8008281904610115,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"itemDescription\" : \"itemDescription\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
+        //[HttpPut]
+        //[Route("/ItemService/Item/{itemId}")]
+        //[SwaggerResponse(statusCode: 200, type: typeof(Item), description: "Success")]
+        //public virtual IActionResult ItemServiceItemItemIdPut([FromRoute][Required]string itemId, [FromBody]Item body)
+        //{ 
+        //    //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+        //    // return StatusCode(200, default(Item));
+        //    string exampleJson = null;
+        //    exampleJson = "{\n  \"itemName\" : \"itemName\",\n  \"price\" : 0.8008281904610115,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"itemDescription\" : \"itemDescription\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
             
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Item>(exampleJson)
-                        : default(Item);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        //                var example = exampleJson != null
+        //                ? JsonConvert.DeserializeObject<Item>(exampleJson)
+        //                : default(Item);            //TODO: Change the data returned
+        //    return new ObjectResult(example);
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="body"></param>
-        /// <response code="201">Created</response>
-        [HttpPost]
-        [Route("/ItemService/Item")]
-        [SwaggerResponse(statusCode: 201, type: typeof(Item), description: "Created")]
-        public virtual IActionResult ItemServiceItemPost([FromBody]Item body)
-        { 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(Item));
-            string exampleJson = null;
-            exampleJson = "{\n  \"itemName\" : \"itemName\",\n  \"price\" : 0.8008281904610115,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"itemDescription\" : \"itemDescription\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="body"></param>
+        ///// <response code="201">Created</response>
+        //[HttpPost]
+        //[Route("/ItemService/Item")]
+        //[SwaggerResponse(statusCode: 201, type: typeof(Item), description: "Created")]
+        //public virtual IActionResult ItemServiceItemPost([FromBody]Item body)
+        //{ 
+        //    //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+        //    // return StatusCode(201, default(Item));
+        //    string exampleJson = null;
+        //    exampleJson = "{\n  \"itemName\" : \"itemName\",\n  \"price\" : 0.8008281904610115,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"itemDescription\" : \"itemDescription\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
             
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Item>(exampleJson)
-                        : default(Item);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        //                var example = exampleJson != null
+        //                ? JsonConvert.DeserializeObject<Item>(exampleJson)
+        //                : default(Item);            //TODO: Change the data returned
+        //    return new ObjectResult(example);
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="businessId"></param>
-        /// <param name="discountId"></param>
-        /// <param name="orderBy"></param>
-        /// <param name="sorting"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <response code="200">Success</response>
-        [HttpGet]
-        [Route("/ItemService/Items")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<Item>), description: "Success")]
-        public virtual IActionResult ItemServiceItemsGet([FromQuery]Guid? businessId, [FromQuery]Guid? discountId, [FromQuery]string orderBy, [FromQuery]string sorting, [FromQuery]int? pageIndex, [FromQuery]int? pageSize)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<Item>));
-            string exampleJson = null;
-            exampleJson = "[ {\n  \"itemName\" : \"itemName\",\n  \"price\" : 0.8008281904610115,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"itemDescription\" : \"itemDescription\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}, {\n  \"itemName\" : \"itemName\",\n  \"price\" : 0.8008281904610115,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"itemDescription\" : \"itemDescription\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n} ]";
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="businessId"></param>
+        ///// <param name="discountId"></param>
+        ///// <param name="orderBy"></param>
+        ///// <param name="sorting"></param>
+        ///// <param name="pageIndex"></param>
+        ///// <param name="pageSize"></param>
+        ///// <response code="200">Success</response>
+        //[HttpGet]
+        //[Route("/ItemService/Items")]
+        //[SwaggerResponse(statusCode: 200, type: typeof(List<Item>), description: "Success")]
+        //public virtual IActionResult ItemServiceItemsGet([FromQuery]Guid? businessId, [FromQuery]Guid? discountId, [FromQuery]string orderBy, [FromQuery]string sorting, [FromQuery]int? pageIndex, [FromQuery]int? pageSize)
+        //{ 
+        //    //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+        //    // return StatusCode(200, default(List<Item>));
+        //    string exampleJson = null;
+        //    exampleJson = "[ {\n  \"itemName\" : \"itemName\",\n  \"price\" : 0.8008281904610115,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"itemDescription\" : \"itemDescription\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}, {\n  \"itemName\" : \"itemName\",\n  \"price\" : 0.8008281904610115,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"itemDescription\" : \"itemDescription\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n} ]";
             
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<Item>>(exampleJson)
-                        : default(List<Item>);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        //                var example = exampleJson != null
+        //                ? JsonConvert.DeserializeObject<List<Item>>(exampleJson)
+        //                : default(List<Item>);            //TODO: Change the data returned
+        //    return new ObjectResult(example);
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="body"></param>
-        /// <response code="201">Created</response>
-        [HttpPost]
-        [Route("/ItemService/Service")]
-        [SwaggerResponse(statusCode: 201, type: typeof(Service), description: "Created")]
-        public virtual IActionResult ItemServiceServicePost([FromBody]Service body)
-        { 
-            //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(201, default(Service));
-            string exampleJson = null;
-            exampleJson = "{\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="body"></param>
+        ///// <response code="201">Created</response>
+        //[HttpPost]
+        //[Route("/ItemService/Service")]
+        //[SwaggerResponse(statusCode: 201, type: typeof(Service), description: "Created")]
+        //public virtual IActionResult ItemServiceServicePost([FromBody]Service body)
+        //{ 
+        //    //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+        //    // return StatusCode(201, default(Service));
+        //    string exampleJson = null;
+        //    exampleJson = "{\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
             
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Service>(exampleJson)
-                        : default(Service);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        //                var example = exampleJson != null
+        //                ? JsonConvert.DeserializeObject<Service>(exampleJson)
+        //                : default(Service);            //TODO: Change the data returned
+        //    return new ObjectResult(example);
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="serviceId"></param>
-        /// <response code="204">No Content</response>
-        [HttpDelete]
-        [Route("/ItemService/Service/{serviceId}")]
-        public virtual IActionResult ItemServiceServiceServiceIdDelete([FromRoute][Required]Guid? serviceId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204);
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="serviceId"></param>
+        ///// <response code="204">No Content</response>
+        //[HttpDelete]
+        //[Route("/ItemService/Service/{serviceId}")]
+        //public virtual IActionResult ItemServiceServiceServiceIdDelete([FromRoute][Required]Guid? serviceId)
+        //{ 
+        //    //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+        //    // return StatusCode(204);
 
-            throw new NotImplementedException();
-        }
+        //    throw new NotImplementedException();
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="serviceId"></param>
-        /// <response code="200">Success</response>
-        [HttpGet]
-        [Route("/ItemService/Service/{serviceId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Service), description: "Success")]
-        public virtual IActionResult ItemServiceServiceServiceIdGet([FromRoute][Required]Guid? serviceId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Service));
-            string exampleJson = null;
-            exampleJson = "{\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="serviceId"></param>
+        ///// <response code="200">Success</response>
+        //[HttpGet]
+        //[Route("/ItemService/Service/{serviceId}")]
+        //[SwaggerResponse(statusCode: 200, type: typeof(Service), description: "Success")]
+        //public virtual IActionResult ItemServiceServiceServiceIdGet([FromRoute][Required]Guid? serviceId)
+        //{ 
+        //    //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+        //    // return StatusCode(200, default(Service));
+        //    string exampleJson = null;
+        //    exampleJson = "{\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
             
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Service>(exampleJson)
-                        : default(Service);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        //                var example = exampleJson != null
+        //                ? JsonConvert.DeserializeObject<Service>(exampleJson)
+        //                : default(Service);            //TODO: Change the data returned
+        //    return new ObjectResult(example);
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="serviceId"></param>
-        /// <param name="body"></param>
-        /// <response code="200">Success</response>
-        [HttpPut]
-        [Route("/ItemService/Service/{serviceId}")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Service), description: "Success")]
-        public virtual IActionResult ItemServiceServiceServiceIdPut([FromRoute][Required]string serviceId, [FromBody]Service body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Service));
-            string exampleJson = null;
-            exampleJson = "{\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="serviceId"></param>
+        ///// <param name="body"></param>
+        ///// <response code="200">Success</response>
+        //[HttpPut]
+        //[Route("/ItemService/Service/{serviceId}")]
+        //[SwaggerResponse(statusCode: 200, type: typeof(Service), description: "Success")]
+        //public virtual IActionResult ItemServiceServiceServiceIdPut([FromRoute][Required]string serviceId, [FromBody]Service body)
+        //{ 
+        //    //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+        //    // return StatusCode(200, default(Service));
+        //    string exampleJson = null;
+        //    exampleJson = "{\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
             
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<Service>(exampleJson)
-                        : default(Service);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+        //                var example = exampleJson != null
+        //                ? JsonConvert.DeserializeObject<Service>(exampleJson)
+        //                : default(Service);            //TODO: Change the data returned
+        //    return new ObjectResult(example);
+        //}
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="businessId"></param>
-        /// <param name="staffId"></param>
-        /// <param name="discountId"></param>
-        /// <param name="orderBy"></param>
-        /// <param name="sorting"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <response code="200">Success</response>
-        [HttpGet]
-        [Route("/ItemService/Services")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<Service>), description: "Success")]
-        public virtual IActionResult ItemServiceServicesGet([FromQuery]Guid? businessId, [FromQuery]Guid? staffId, [FromQuery]Guid? discountId, [FromQuery]string orderBy, [FromQuery]string sorting, [FromQuery]int? pageIndex, [FromQuery]int? pageSize)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<Service>));
-            string exampleJson = null;
-            exampleJson = "[ {\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}, {\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n} ]";
+        ///// <summary>
+        ///// 
+        ///// </summary>
+        ///// <param name="businessId"></param>
+        ///// <param name="staffId"></param>
+        ///// <param name="discountId"></param>
+        ///// <param name="orderBy"></param>
+        ///// <param name="sorting"></param>
+        ///// <param name="pageIndex"></param>
+        ///// <param name="pageSize"></param>
+        ///// <response code="200">Success</response>
+        //[HttpGet]
+        //[Route("/ItemService/Services")]
+        //[SwaggerResponse(statusCode: 200, type: typeof(List<Service>), description: "Success")]
+        //public virtual IActionResult ItemServiceServicesGet([FromQuery]Guid? businessId, [FromQuery]Guid? staffId, [FromQuery]Guid? discountId, [FromQuery]string orderBy, [FromQuery]string sorting, [FromQuery]int? pageIndex, [FromQuery]int? pageSize)
+        //{ 
+        //    //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
+        //    // return StatusCode(200, default(List<Service>));
+        //    string exampleJson = null;
+        //    exampleJson = "[ {\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}, {\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n} ]";
             
-                        var example = exampleJson != null
-                        ? JsonConvert.DeserializeObject<List<Service>>(exampleJson)
-                        : default(List<Service>);            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }*/
+        //                var example = exampleJson != null
+        //                ? JsonConvert.DeserializeObject<List<Service>>(exampleJson)
+        //                : default(List<Service>);            //TODO: Change the data returned
+        //    return new ObjectResult(example);
+        //}
     }
 }
