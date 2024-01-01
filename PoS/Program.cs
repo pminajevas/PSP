@@ -12,6 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddScoped<IBusinessService, BusinessService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddSingleton<IFilterValidator, FilterValidator>();
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
