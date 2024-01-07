@@ -12,7 +12,7 @@ namespace PoS.Services.Services
 
         public Task<DiscountResponse?> GetDiscountByIdAsync(Guid discountId);
 
-        public Task<DiscountResponse?> UpdateDiscountByIdAsync(Guid discountId, DiscountUpdateRequest discountUpdateRequest);
+        public Task<DiscountResponse?> UpdateDiscountByIdAsync(Guid discountId, DiscountRequest discountUpdateRequest);
 
         public Task<bool> DeleteDiscountByIdAsync(Guid discountId);
     }

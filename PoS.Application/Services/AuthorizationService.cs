@@ -44,7 +44,7 @@ namespace PoS.Application.Services
 
                         if (staff is not null)
                         {
-                            if (!BCrypt.Net.BCrypt.Verify(staff.Password, loginRequest.Password))
+                            if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, staff.Password))
                             {
                                 throw new AuthenticationException("Invalid password");
                             }
@@ -68,7 +68,7 @@ namespace PoS.Application.Services
 
                         if (customer is not null)
                         {
-                            if (!BCrypt.Net.BCrypt.Verify(customer.Password, loginRequest.Password))
+                            if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, customer.Password))
                             {
                                 throw new AuthenticationException("Invalid password");
                             }

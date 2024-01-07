@@ -5,25 +5,28 @@ using PoS.Application.Models.Requests;
 using PoS.Application.Mapper;
 using PoS.Core.Entities;
 using PoS.Application.Filters;
+using AutoMapper;
 
 namespace PoS.Services.Services
 {
     public class DiscountService : IDiscountService
     {
         private readonly IDiscountRepository _discountRepository;
+        private readonly IMapper _mapper;
 
-        public DiscountService(IDiscountRepository discountRepository)
+        public DiscountService(IDiscountRepository discountRepository, IMapper mapper)
         {
             _discountRepository = discountRepository;
+            _mapper = mapper;
         }
 
         public async Task<DiscountResponse> AddDiscountAsync(DiscountRequest discountRequest)
         {
-            var discount = Mapping.Mapper.Map<DiscountRequest, Discount>(discountRequest);
+            var discount = _mapper.Map<Discount>(discountRequest);
 
             discount = await _discountRepository.InsertAsync(discount);
 
-            return Mapping.Mapper.Map<Discount, DiscountResponse>(discount);
+            return _mapper.Map<DiscountResponse>(discount);
         }
 
         public async Task<List<DiscountResponse>> GetDiscountsAsync(DiscountFilter filter)
@@ -56,7 +59,7 @@ namespace PoS.Services.Services
                 filter.PageSize
             );
 
-            return Mapping.Mapper.Map<IEnumerable<Discount>, List<DiscountResponse>>(discounts);
+            return _mapper.Map<List<DiscountResponse>>(discounts);
         }
 
         public async Task<DiscountResponse?> GetDiscountByIdAsync(Guid discountId)
@@ -65,22 +68,22 @@ namespace PoS.Services.Services
 
             if (discount is not null)
             {
-                return Mapping.Mapper.Map<Discount, DiscountResponse>(discount); 
+                return _mapper.Map<DiscountResponse>(discount); 
             }
 
             return null;
         }
 
-        public async Task<DiscountResponse?> UpdateDiscountByIdAsync(Guid discountId, DiscountUpdateRequest discountUpdateRequest)
+        public async Task<DiscountResponse?> UpdateDiscountByIdAsync(Guid discountId, DiscountRequest discountUpdateRequest)
         {
-            var discountUpdated = Mapping.Mapper.Map<DiscountUpdateRequest, Discount>(discountUpdateRequest);
+            var discountUpdated = _mapper.Map<Discount>(discountUpdateRequest);
             discountUpdated.Id = discountId;
 
             discountUpdated = await _discountRepository.UpdateAsync(discountUpdated);
 
             if (discountUpdated is not null)
             {
-                return Mapping.Mapper.Map<Discount, DiscountResponse>(discountUpdated);
+                return _mapper.Map<DiscountResponse>(discountUpdated);
             }
 
             return null;

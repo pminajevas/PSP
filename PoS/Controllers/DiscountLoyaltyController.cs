@@ -40,7 +40,7 @@ namespace PoS.Controllers
 
         [HttpPut]
         [Route("/DiscountLoyalty/Discount/{discountId}")]
-        public async Task<IActionResult> UpdateDiscountById([FromRoute][Required] Guid discountId, [FromBody] DiscountUpdateRequest discountRequest)
+        public async Task<IActionResult> UpdateDiscountById([FromRoute][Required] Guid discountId, [FromBody] DiscountRequest discountRequest)
         {
             return Ok(await _discountLoyaltyService.UpdateDiscountByIdAsync(discountId, discountRequest));
         }

@@ -50,7 +50,7 @@ builder.Services.AddScoped<ITaxRepository, TaxRepository>();
 
 // Add services
 
-builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
