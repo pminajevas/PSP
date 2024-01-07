@@ -22,6 +22,7 @@ builder.Services.AddScoped<IBusinessService, BusinessService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IDiscountService, DiscountService>();
+builder.Services.AddScoped<IServicesService, ServicesService>();
 
 builder.Services.AddScoped<IDiscountLoyaltyRepository, DiscountLoyaltyRepository>();
 
