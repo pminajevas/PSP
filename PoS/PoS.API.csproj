@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="6.0.25" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.25">
       <PrivateAssets>all</PrivateAssets>
@@ -18,9 +19,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\PoS.Data\PoS.Data.csproj" />
-    <ProjectReference Include="..\PoS.Services\PoS.Services.csproj" />
-    <ProjectReference Include="..\PoS.Shared\PoS.Shared.csproj" />
+    <ProjectReference Include="..\PoS.Application\PoS.Application.csproj" />
+    <ProjectReference Include="..\PoS.Infrastructure\PoS.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
