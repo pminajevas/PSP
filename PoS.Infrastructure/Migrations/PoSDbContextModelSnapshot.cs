@@ -11,7 +11,7 @@ using PoS.Infrastructure.Context;
 namespace PoS.Infrastructure.Migrations
 {
     [DbContext(typeof(PoSDBContext))]
-    partial class PoSDbContextModelSnapshot : ModelSnapshot
+    partial class PoSDBContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -22,7 +22,7 @@ namespace PoS.Infrastructure.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder, 1L, 1);
 
-            modelBuilder.Entity("PoS.Data.Appointment", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Appointment", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -55,7 +55,7 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("Appointments");
                 });
 
-            modelBuilder.Entity("PoS.Data.Business", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Business", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -71,12 +71,18 @@ namespace PoS.Infrastructure.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
+                    b.Property<int>("WorkingHoursEnd")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WorkingHoursStart")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.ToTable("Businesses");
                 });
 
-            modelBuilder.Entity("PoS.Data.Coupon", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Coupon", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -101,13 +107,13 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("Coupons");
                 });
 
-            modelBuilder.Entity("PoS.Data.Customer", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Customer", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BusinessId")
+                    b.Property<Guid>("BusinessId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Address")
@@ -127,14 +133,22 @@ namespace PoS.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("LoginName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
                     b.Property<Guid?>("LoyaltyId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double?>("Points")
                         .HasColumnType("float");
 
-                    b.Property<Guid?>("UserId")
-                        .IsRequired()
+                    b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id", "BusinessId");
@@ -142,7 +156,7 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("PoS.Data.Discount", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Discount", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -164,7 +178,7 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("Discounts");
                 });
 
-            modelBuilder.Entity("PoS.Data.Item", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Item", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -196,7 +210,7 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("Items");
                 });
 
-            modelBuilder.Entity("PoS.Data.LoyaltyProgram", b =>
+            modelBuilder.Entity("PoS.Core.Entities.LoyaltyProgram", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -224,7 +238,7 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("LoyaltyPrograms");
                 });
 
-            modelBuilder.Entity("PoS.Data.Order", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Order", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -254,6 +268,9 @@ namespace PoS.Infrastructure.Migrations
                     b.Property<double?>("Tip")
                         .HasColumnType("float");
 
+                    b.Property<double>("Tips")
+                        .HasColumnType("float");
+
                     b.Property<double?>("TotalAmount")
                         .IsRequired()
                         .HasColumnType("float");
@@ -263,7 +280,7 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("Orders");
                 });
 
-            modelBuilder.Entity("PoS.Data.OrderItem", b =>
+            modelBuilder.Entity("PoS.Core.Entities.OrderItem", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -297,7 +314,7 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("OrderItems");
                 });
 
-            modelBuilder.Entity("PoS.Data.Payment", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Payment", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -327,7 +344,7 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("Payments");
                 });
 
-            modelBuilder.Entity("PoS.Data.PaymentMethod", b =>
+            modelBuilder.Entity("PoS.Core.Entities.PaymentMethod", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -348,9 +365,9 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("PaymentMethods");
                 });
 
-            modelBuilder.Entity("PoS.Data.Role", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Role", b =>
                 {
-                    b.Property<Guid?>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
@@ -369,31 +386,31 @@ namespace PoS.Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("07ce4f6b-22a9-422a-803b-2dfe4562b677"),
+                            Id = new Guid("1a07b3bf-bf14-4d7d-9350-5566fc8d180d"),
                             Description = "Administrator has access to all operations",
                             RoleName = "Admin"
                         },
                         new
                         {
-                            Id = new Guid("5f5aebb8-7fa7-43fc-a9f4-3bf272648c72"),
+                            Id = new Guid("e6b5f636-8f5a-4a7c-b2aa-f09867a84061"),
                             Description = "Manager has access to all operations in the business",
                             RoleName = "Manager"
                         },
                         new
                         {
-                            Id = new Guid("790d8e8e-a1fb-4181-a797-dd3d3dff2a29"),
+                            Id = new Guid("b9db73e6-a146-4f51-8f09-8d19e810c07e"),
                             Description = "Staff has access to most common operations in the business",
                             RoleName = "Staff"
                         },
                         new
                         {
-                            Id = new Guid("497bc919-5151-40e0-bb12-392f170ea584"),
+                            Id = new Guid("3583ad02-e83e-4aed-98b2-9e1936e1e70c"),
                             Description = "Customer has access to operations related to customer self-service",
                             RoleName = "Customer"
                         });
                 });
 
-            modelBuilder.Entity("PoS.Data.Service", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Service", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -433,14 +450,13 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("Services");
                 });
 
-            modelBuilder.Entity("PoS.Data.Staff", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Staff", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("BusinessId")
-                        .IsRequired()
+                    b.Property<Guid>("BusinessId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Email")
@@ -460,15 +476,20 @@ namespace PoS.Infrastructure.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("LoginName")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PhoneNumber")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RoleName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -476,7 +497,7 @@ namespace PoS.Infrastructure.Migrations
                     b.ToTable("StaffMembers");
                 });
 
-            modelBuilder.Entity("PoS.Data.Tax", b =>
+            modelBuilder.Entity("PoS.Core.Entities.Tax", b =>
                 {
                     b.Property<Guid?>("Id")
                         .ValueGeneratedOnAdd()
@@ -509,56 +530,6 @@ namespace PoS.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Taxes");
-                });
-
-            modelBuilder.Entity("PoS.Data.User", b =>
-                {
-                    b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("LoginName")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("nvarchar(50)");
-
-                    b.Property<byte[]>("PasswordHash")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<byte[]>("PasswordSalt")
-                        .IsRequired()
-                        .HasColumnType("varbinary(max)");
-
-                    b.Property<string>("RoleName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Users");
-                });
-
-            modelBuilder.Entity("PoS.Data.UserLogin", b =>
-                {
-                    b.Property<Guid?>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("LoginDate")
-                        .IsRequired()
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime?>("LogoutDate")
-                        .IsRequired()
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid?>("UserId")
-                        .IsRequired()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserLogins");
                 });
 #pragma warning restore 612, 618
         }

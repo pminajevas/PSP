@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace PoS.Infrastructure.Migrations
 {
-    public partial class init : Migration
+    public partial class Reset : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -32,7 +32,9 @@ namespace PoS.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BusinessName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    Location = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false)
+                    Location = table.Column<string>(type: "nvarchar(500)", maxLength: 500, nullable: false),
+                    WorkingHoursStart = table.Column<int>(type: "int", nullable: false),
+                    WorkingHoursEnd = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -60,8 +62,10 @@ namespace PoS.Infrastructure.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     BusinessId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     LoyaltyId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    LoginName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     Birthday = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -144,6 +148,7 @@ namespace PoS.Infrastructure.Migrations
                     BusinessId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     StaffId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     TaxId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    Tips = table.Column<double>(type: "float", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     TotalAmount = table.Column<double>(type: "float", nullable: false),
@@ -219,13 +224,15 @@ namespace PoS.Infrastructure.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     FirstName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     LastName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    LoginName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     HireDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    BusinessId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    BusinessId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -249,44 +256,15 @@ namespace PoS.Infrastructure.Migrations
                     table.PrimaryKey("PK_Taxes", x => x.Id);
                 });
 
-            migrationBuilder.CreateTable(
-                name: "UserLogins",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LoginDate = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    LogoutDate = table.Column<DateTime>(type: "datetime2", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_UserLogins", x => x.Id);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Users",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    LoginName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
-                    PasswordHash = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    PasswordSalt = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    RoleName = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Users", x => x.Id);
-                });
-
             migrationBuilder.InsertData(
                 table: "Roles",
                 columns: new[] { "Id", "Description", "RoleName" },
                 values: new object[,]
                 {
-                    { new Guid("02348180-7730-485e-bd6b-2dcd6db45ebd"), "Manager has access to all operations in the business", "Manager" },
-                    { new Guid("208fd140-7967-443a-9e7d-2b443a54f006"), "Administrator has access to all operations", "Admin" },
-                    { new Guid("4cbb02d6-e041-4cb2-964e-b66723721ab2"), "Customer has access to operations related to customer self-service", "Customer" },
-                    { new Guid("9c316c8f-24f2-49a9-8093-d7c2f9e0a023"), "Staff has access to most common operations in the business", "Staff" }
+                    { new Guid("1a07b3bf-bf14-4d7d-9350-5566fc8d180d"), "Administrator has access to all operations", "Admin" },
+                    { new Guid("3583ad02-e83e-4aed-98b2-9e1936e1e70c"), "Customer has access to operations related to customer self-service", "Customer" },
+                    { new Guid("b9db73e6-a146-4f51-8f09-8d19e810c07e"), "Staff has access to most common operations in the business", "Staff" },
+                    { new Guid("e6b5f636-8f5a-4a7c-b2aa-f09867a84061"), "Manager has access to all operations in the business", "Manager" }
                 });
         }
 
@@ -336,12 +314,6 @@ namespace PoS.Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Taxes");
-
-            migrationBuilder.DropTable(
-                name: "UserLogins");
-
-            migrationBuilder.DropTable(
-                name: "Users");
         }
     }
 }

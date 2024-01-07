@@ -18,8 +18,6 @@ namespace PoS.Infrastructure.Context
         public DbSet<PaymentMethod> PaymentMethods { get; set; } = default!;
         public DbSet<Service> Services { get; set; } = default!;
         public DbSet<Staff> StaffMembers { get; set; } = default!;
-        public DbSet<UserLogin> UserLogins { get; set; } = default!;
-        public DbSet<User> Users { get; set; } = default!;
         public DbSet<Appointment> Appointments { get; set; } = default!;
         public DbSet<Discount> Discounts { get; set; } = default!;
         public DbSet<LoyaltyProgram> LoyaltyPrograms { get; set; } = default!;

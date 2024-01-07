@@ -1,35 +1,58 @@
 using Microsoft.EntityFrameworkCore;
-using PoS.API.Helpers;
-using PoS.Data.Context;
 using PoS.Services.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
-using PoS.Data.Repositories.Interfaces;
-using PoS.Data.Repositories;
 using PoS.API.Middleware;
-using PoS.Data;
+using PoS.Application.Services.Interfaces;
+using PoS.Application.Services;
+using PoS.Application.Abstractions.Repositories;
+using PoS.Infrastructure.Repositories;
+using PoS.Infrastructure.Context;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add logging
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-// Add services to the container.
+// Add domain services to the container.
 
+builder.Services.AddScoped<IAuthorizationService, AuthorizationService>();
 builder.Services.AddScoped<IBusinessService, BusinessService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<ICustomerService, CustomerService>();
 builder.Services.AddScoped<IDiscountService, DiscountService>();
+builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IServicesService, ServicesService>();
+builder.Services.AddScoped<IStaffService, StaffService>();
 
-builder.Services.AddScoped<IDiscountLoyaltyRepository, DiscountLoyaltyRepository>();
+// Add repositories to the container
 
-builder.Services.AddSingleton<IFilterValidator, FilterValidator>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+builder.Services.AddScoped<IBusinessRepository, BusinessRepository>();
+builder.Services.AddScoped<ICouponRepository, CouponRepository>();
+builder.Services.AddScoped<ICustomerRepository, CustomerRepository>();
+builder.Services.AddScoped<IDiscountRepository, DiscountRepository>();
+builder.Services.AddScoped<IItemRepository, ItemRepository>();
+builder.Services.AddScoped<ILoyaltyProgramRepository, LoyaltyProgramRepository>();
+builder.Services.AddScoped<IOrderItemRepository, OrderItemRepository>();
+builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+builder.Services.AddScoped<IPaymentMethodRepository, PaymentMethodRepository>();
+builder.Services.AddScoped<IPaymentRepository, PaymentRepository>();
+builder.Services.AddScoped<IRoleRepository, RoleRepository>();
+builder.Services.AddScoped<IServiceRepository, ServiceRepository>();
+builder.Services.AddScoped<IStaffRepository, StaffRepository>();
+builder.Services.AddScoped<ITaxRepository, TaxRepository>();
+
+// Add services
+
+builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
@@ -58,7 +81,7 @@ builder.Services.AddSwaggerGen(option =>
         }
     });
 });
-builder.Services.AddDbContext<PoSDbContext>(options =>
+builder.Services.AddDbContext<PoSDBContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
         sqlServerOptionsAction: sqlOptions =>
@@ -68,6 +91,7 @@ builder.Services.AddDbContext<PoSDbContext>(options =>
                 maxRetryDelay: TimeSpan.FromSeconds(10),
                 errorNumbersToAdd: null
             );
+            sqlOptions.MigrationsAssembly("PoS.Infrastructure");
         });
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

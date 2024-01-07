@@ -16,5 +16,13 @@ namespace PoS.Core.Entities
         [MaxLength(500)]
         public string Location { get; set; }
 
+        [Required]
+        [Range(0, 1440)]
+        public int WorkingHoursStart {  get; set; }
+
+        [Required]
+        [Range(0, 1440)]
+        public int WorkingHoursEnd { get; set; }
+
     }
 }

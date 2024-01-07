@@ -1,20 +1,9 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Authorization;
 using PoS.Services.Services;
-using PoS.Shared.Utilities;
-using PoS.API.Helpers;
-using PoS.Shared.RequestDTOs;
-using PoS.Shared.ResponseDTOs;
-using PoS.Data;
-using System.Security.Claims;
-using Swashbuckle.AspNetCore.Annotations;
-using PoS.Services.Filters;
-using System.Reflection.Metadata.Ecma335;
+using PoS.Application.Models.Requests;
+using PoS.Application.Filters;
 
 namespace PoS.Controllers
 {

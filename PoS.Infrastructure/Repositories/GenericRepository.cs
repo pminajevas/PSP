@@ -1,16 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PoS.Application.Abstractions.Repositories;
 using PoS.Infrastructure.Context;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace PoS.Infrastructure.Repositories
 {
-    public abstract class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
+    public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
     {
         protected readonly PoSDBContext Context;
         protected readonly DbSet<TEntity> DbSet;
@@ -21,18 +16,19 @@ namespace PoS.Infrastructure.Repositories
             DbSet = context.Set<TEntity>();
         }
 
-        public Task<List<TEntity>> GetAsync(
-            Expression<Func<TEntity, bool>>? filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-            List<string>? requiredFields = null
-        )
+        public async Task<TEntity> InsertAsync(TEntity entity)
         {
-            return QueryBase(filter, orderBy, requiredFields).ToListAsync();
+            DbSet.Add(entity);
+            await Context.SaveChangesAsync();
+
+            return entity;
         }
 
-        public async Task<TEntity?> GetFirstAsync(
+        public async Task<IEnumerable<TEntity>> GetAsync(
             Expression<Func<TEntity, bool>>? filter = null,
-            List<string>? requiredFields = null
+            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
+            int? itemsToSkip = null,
+            int? itemsToTake = null
         )
         {
             IQueryable<TEntity> query = DbSet;
@@ -42,9 +38,33 @@ namespace PoS.Infrastructure.Repositories
                 query = query.Where(filter);
             }
 
-            if (requiredFields != null)
+            if (orderBy != null)
             {
-                query = requiredFields.Aggregate(query, (current, requiredField) => current.Include(requiredField));
+                query = orderBy(query);
+            }
+
+            if (itemsToSkip != null)
+            {
+                query = query.Skip((int)itemsToSkip);
+            }
+
+            if (itemsToTake != null)
+            {
+                query = query.Take((int)itemsToTake);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<TEntity?> GetFirstAsync(
+            Expression<Func<TEntity, bool>>? filter = null
+        )
+        {
+            IQueryable<TEntity> query = DbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
             }
 
             TEntity? entity;
@@ -61,45 +81,35 @@ namespace PoS.Infrastructure.Repositories
             return entity;
         }
 
-        public async Task<bool> Exists(Expression<Func<TEntity, bool>> filter)
-        {
-            return await DbSet.AnyAsync(filter);
-        }
-
         public async Task<TEntity?> GetByIdAsync(object id)
         {
             return await DbSet.FindAsync(id);
         }
 
-        public async Task<TEntity> InsertAsync(TEntity entity)
+        public async Task<bool> Exists(Expression<Func<TEntity, bool>> filter)
         {
-            DbSet.Add(entity);
-            await Context.SaveChangesAsync();
-
-            return entity;
+            return await DbSet.AnyAsync(filter);
         }
 
-        public async Task<TEntity> DeleteAsync(object id)
+        public async Task<bool> DeleteAsync(object id)
         {
             var entity = await DbSet.FindAsync(id);
 
             if (entity == null)
             {
-                throw new InvalidOperationException();
+                return false;
             }
 
             DbSet.Remove(entity);
             await Context.SaveChangesAsync();
 
-            return entity;
+            return true;
         }
 
-        public async Task<TEntity> DeleteAsync(TEntity entity)
+        public async Task DeleteAsync(TEntity entity)
         {
             DbSet.Remove(entity);
             await Context.SaveChangesAsync();
-
-            return entity;
         }
 
         public async Task<TEntity> UpdateAsync(TEntity entity)
@@ -118,27 +128,6 @@ namespace PoS.Infrastructure.Repositories
             }
 
             return DbSet.Count();
-        }
-
-        private IQueryable<TEntity> QueryBase(
-            Expression<Func<TEntity, bool>>? filter = null,
-            Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-            IReadOnlyCollection<string>? requiredFields = null
-        )
-        {
-            IQueryable<TEntity> query = DbSet;
-
-            if (filter != null)
-            {
-                query = query.Where(filter);
-            }
-
-            if (requiredFields != null)
-            {
-                query = requiredFields.Aggregate(query, (current, requiredField) => current.Include(requiredField));
-            }
-
-            return orderBy != null ? orderBy(query) : query;
         }
     }
 }

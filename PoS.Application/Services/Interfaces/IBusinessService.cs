@@ -1,14 +1,14 @@
-﻿using PoS.Shared.RequestDTOs;
-using PoS.Shared.ResponseDTOs;
-using PoS.Shared.Utilities;
+﻿using PoS.Application.Filters;
+using PoS.Application.Models.Requests;
+using PoS.Application.Models.Responses;
 
-namespace PoS.Services.Services
+namespace PoS.Application.Services.Interfaces
 {
     public interface IBusinessService
     {
         Task<BusinessResponse> AddBusinessAsync(BusinessRequest business);
         Task<bool> DeleteBusinessAsync(Guid id);
-        Task<IEnumerable<BusinessResponse>> GetAllBusinessesAsync(Filter filter);
+        Task<IEnumerable<BusinessResponse>> GetAllBusinessesAsync(BusinessesFilter businessFilter);
         Task<BusinessResponse?> GetBusinessByIdAsync(Guid id);
         Task<BusinessResponse?> UpdateBusinessAsync(BusinessRequest updatedBusiness, Guid businessId);
     }

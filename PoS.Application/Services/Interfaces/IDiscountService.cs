@@ -1,11 +1,6 @@
-﻿using PoS.Services.Filters;
-using PoS.Shared.RequestDTOs;
-using PoS.Shared.ResponseDTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using PoS.Application.Filters;
+using PoS.Application.Models.Requests;
+using PoS.Application.Models.Responses;
 
 namespace PoS.Services.Services
 {

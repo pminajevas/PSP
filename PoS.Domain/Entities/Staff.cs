@@ -10,15 +10,19 @@ namespace PoS.Core.Entities
         public Guid Id { get; set; }
 
         [Required]
-        public Guid UserId { get; set; }
-
-        [Required]
         [MaxLength(50)]
         public string FirstName { get; set; }
 
         [Required]
         [MaxLength(50)]
         public string LastName { get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public string LoginName { get; set; }
+
+        [Required]
+        public string Password { get; set; }
 
         [DataType(DataType.PhoneNumber)]
         public string PhoneNumber { get; set; }
@@ -30,10 +34,10 @@ namespace PoS.Core.Entities
         public DateTime? HireDate { get; set; }
 
         [Required]
-        public Guid? BusinessId { get; set; }
+        public Guid BusinessId { get; set; }
         
         [Required]
-        public string? RoleName { get; set; }
+        public Guid RoleId { get; set; }
 
     }
 }

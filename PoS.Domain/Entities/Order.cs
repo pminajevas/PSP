@@ -20,6 +20,8 @@ namespace PoS.Core.Entities
 
         public Guid? TaxId { get; set; }
 
+        public double Tips { get; set; } = 0;
+
         [Required]
         public OrderStatusEnum? Status { get; set; }
 

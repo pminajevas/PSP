@@ -1,209 +1,105 @@
-using System;
-using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc;
-using Swashbuckle.AspNetCore.SwaggerGen;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Authorization;
 using PoS.Services.Services;
-using PoS.Shared.Utilities;
-using PoS.API.Helpers;
-using PoS.Shared.RequestDTOs;
-using PoS.Shared.ResponseDTOs;
-using PoS.Data;
-using System.Security.Claims;
+using PoS.Application.Services.Interfaces;
+using PoS.Application.Models.Requests;
+using PoS.Application.Filters;
 
 namespace PoS.Controllers
 {
-    /// <summary>
-    /// 
-    /// </summary>
     [ApiController]
-    public class BusinessApiController : ControllerBase
+    public class BusinessController : ControllerBase
     {
         private IBusinessService _businessService;
-        private IUserService _userService;
-        private IFilterValidator _validator;
-        public BusinessApiController(IBusinessService businessService, IUserService userService, IFilterValidator validator)
+        private Application.Services.Interfaces.IAuthorizationService _authorizationService;
+
+        public BusinessController(
+            IBusinessService businessService,
+            Application.Services.Interfaces.IAuthorizationService authorizationService
+        )
         {
             _businessService = businessService;
-            _validator = validator;
-            _userService = userService;
+            _authorizationService = authorizationService;
         }
 
-
-
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="businessId"></param>
-        /// <response code="204">No Content</response>
         [HttpDelete]
         [Route("/Business/Business/{businessId}")]
-        [Authorize(Roles = "Admin,Manager")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteBusinessAsync([FromRoute][Required]Guid businessId)
         {
-            try
+            if (await _businessService.DeleteBusinessAsync(businessId))
             {
-                var businessIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                var loginName = User.FindFirst(ClaimTypes.Name)!.Value;
-                if (User.IsInRole("Admin") ||
-                    (businessIdClaim != null &&
-                    Guid.TryParse(businessIdClaim.Value, out var businessIdFromToken) &&
-                    await _userService.HasAccessToBusinessAsync(loginName, businessIdFromToken) &&
-                    businessId == businessIdFromToken))
-                {
-
-                        if (await _businessService.DeleteBusinessAsync(businessId) == true)
-                        {
-                            return Ok();
-                        }
-                        return NotFound();
-
-                }
-                else return Forbid();
+                return Ok();
             }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
+
+            return Problem();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="businessId"></param>
-        /// <response code="200">Success</response>
         [HttpGet]
         [Route("/Business/Business/{businessId}")]
         [ActionName("GetBusiness")]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> GetBusinessAsync([FromRoute][Required]Guid businessId)
         {
-            try
+            if (await _authorizationService.IsUserAdminOrBusinessManager(User))
             {
-                var businessIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                var loginName = User.FindFirst(ClaimTypes.Name)!.Value;
-                if (User.IsInRole("Admin") ||
-                    (businessIdClaim != null &&
-                    Guid.TryParse(businessIdClaim.Value, out var businessIdFromToken) &&
-                    await _userService.HasAccessToBusinessAsync(loginName, businessIdFromToken) &&
-                    businessId == businessIdFromToken))
+                var result = await _businessService.GetBusinessByIdAsync(businessId);
+
+                if (result != null)
                 {
-                    var result = await _businessService.GetBusinessByIdAsync(businessId);
-                    if (result != null)
-                    {
-                        return Ok(result);
-                    }
-                    else
-                    {
-                        return NotFound();
-                    }
+                    return Ok(result);
                 }
-                else return Forbid();
+
+                return NotFound();
             }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
+
+            return Forbid();
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="businessId"></param>
-        /// <param name="body"></param>
-        /// <response code="200">Success</response>
         [HttpPut]
         [Route("/Business/Business/{businessId}")]
         [Authorize(Roles = "Admin,Manager")]
         public async Task<IActionResult> UpdateBusinessAsync([FromRoute][Required]Guid businessId, [FromBody]BusinessRequest business)
         {
-            try
+            if (await _authorizationService.IsUserAdminOrBusinessManager(User))
             {
-                var businessIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
-                var loginName = User.FindFirst(ClaimTypes.Name)!.Value;
-                if (User.IsInRole("Admin") ||
-                    (businessIdClaim != null &&
-                    Guid.TryParse(businessIdClaim.Value, out var businessIdFromToken) &&
-                    await _userService.HasAccessToBusinessAsync(loginName, businessIdFromToken) &&
-                    businessId == businessIdFromToken))
+                var updatedBusiness = await _businessService.UpdateBusinessAsync(business, businessId);
+
+                if (updatedBusiness != null)
                 {
-                    var updatedBusiness = await _businessService.UpdateBusinessAsync(business, businessId);
-                    if (updatedBusiness != null)
-                    {
-                        return Ok(updatedBusiness);
-                    }
-                    return NotFound();
+                    return Ok(updatedBusiness);
                 }
-                else return Forbid();
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
- 
-        }
 
+                return NotFound();
+            }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="body"></param>
-        /// <response code="201">Created</response>
+            return Forbid();
+
+    }
+
         [HttpPost]
         [Route("/Business/Business")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> CreateBusinessAsync([FromBody]BusinessRequest business)
         {
-            try
-            {
-                var newBusiness = await _businessService.AddBusinessAsync(business);
-                return CreatedAtAction("GetBusiness", new { businessId = newBusiness.Id }, newBusiness);
+            var newBusiness = await _businessService.AddBusinessAsync(business);
 
-            }
-            catch (Exception ex)
-            {
-                return Problem(ex.Message);
-            }
+            return CreatedAtAction("GetBusiness", new { businessId = newBusiness.Id }, newBusiness);
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="location"></param>
-        /// <param name="orderBy"></param>
-        /// <param name="sorting"></param>
-        /// <param name="pageIndex"></param>
-        /// <param name="pageSize"></param>
-        /// <response code="200">Success</response>
         [HttpGet]
         [Route("/Business/Businesses")]
-        public async Task<IActionResult> GetBusinessesAsync([FromQuery]string? location = null, [FromQuery]string? orderBy = null, [FromQuery]string? sorting = null, [FromQuery]int? pageIndex = null, [FromQuery]int? pageSize = null)
+        [Authorize(Roles = "Admin,Manager")]
+        public async Task<IActionResult> GetBusinessesAsync([FromQuery] BusinessesFilter businessFilter)
         {
-            Filter filter = new Filter();
-
-            // Add supported parameters using the AddParameter method
-            filter.AddParameter("Location", location);
-            filter.AddParameter("OrderBy", orderBy);
-            filter.AddParameter("Sorting", sorting);
-            filter.AddParameter("PageIndex", pageIndex);
-            filter.AddParameter("PageSize", pageSize);
-            if (_validator.ValidateFilter(filter))
+            if (await _authorizationService.IsUserAdminOrBusinessManager(User))
             {
-                try
-                {
-                    return Ok(await _businessService.GetAllBusinessesAsync(filter));
-                }
-                catch (Exception ex)
-                {
-                    return Problem(ex.Message);
-                }
-                
+                return Ok(await _businessService.GetAllBusinessesAsync(businessFilter));
             }
-            return BadRequest("Incorrect filters");
-            
+
+            return Forbid();
         }
     }
 }

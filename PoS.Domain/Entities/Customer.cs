@@ -10,12 +10,18 @@ namespace PoS.Core.Entities
         public Guid? Id { get; set; }
 
         [Required]
-        public Guid? BusinessId { get; set; }
-
-        [Required]
-        public Guid? UserId { get; set; }
+        public Guid BusinessId { get; set; }
 
         public Guid? LoyaltyId { get; set; }
+
+        public Guid RoleId {  get; set; }
+
+        [Required]
+        [MaxLength(50)]
+        public string LoginName { get; set; }
+
+        [Required]
+        public string Password { get; set; }
 
         [Required]
         [MaxLength(50)]

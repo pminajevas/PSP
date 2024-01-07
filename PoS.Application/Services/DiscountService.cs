@@ -1,35 +1,27 @@
-﻿using PoS.Data.Mapper;
-using PoS.Data;
-using PoS.Data.Repositories.Interfaces;
-using PoS.Shared.RequestDTOs;
-using PoS.Shared.ResponseDTOs;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using PoS.Shared.Utilities;
-using PoS.Services.Filters;
-using System.Linq.Expressions;
-using System.Linq.Dynamic.Core;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using PoS.Application.Abstractions.Repositories;
+using PoS.Application.Models.Responses;
+using PoS.Application.Models.Requests;
+using PoS.Application.Mapper;
+using PoS.Core.Entities;
+using PoS.Application.Filters;
 
 namespace PoS.Services.Services
 {
     public class DiscountService : IDiscountService
     {
-        private readonly IDiscountLoyaltyRepository _discountLoyaltyRepository;
+        private readonly IDiscountRepository _discountRepository;
 
-        public DiscountService(IDiscountLoyaltyRepository discountLoyaltyRepository)
+        public DiscountService(IDiscountRepository discountRepository)
         {
-            _discountLoyaltyRepository = discountLoyaltyRepository;
+            _discountRepository = discountRepository;
         }
 
         public async Task<DiscountResponse> AddDiscountAsync(DiscountRequest discountRequest)
         {
             var discount = Mapping.Mapper.Map<DiscountRequest, Discount>(discountRequest);
 
-            discount = await _discountLoyaltyRepository.CreateDiscountAsync(discount);
+            discount = await _discountRepository.InsertAsync(discount);
 
             return Mapping.Mapper.Map<Discount, DiscountResponse>(discount);
         }
@@ -57,11 +49,11 @@ namespace PoS.Services.Services
                 }
             }
 
-            var discounts = await _discountLoyaltyRepository.GetDiscountsAsync(
-                filter.ItemsToSkip(),
-                filter.PageSize,
+            var discounts = await _discountRepository.GetAsync(
                 discountFilter,
-                orderByDiscount
+                orderByDiscount,
+                filter.ItemsToSkip(),
+                filter.PageSize
             );
 
             return Mapping.Mapper.Map<IEnumerable<Discount>, List<DiscountResponse>>(discounts);
@@ -69,7 +61,7 @@ namespace PoS.Services.Services
 
         public async Task<DiscountResponse?> GetDiscountByIdAsync(Guid discountId)
         {
-            var discount = await _discountLoyaltyRepository.GetDiscountById(discountId);
+            var discount = await _discountRepository.GetByIdAsync(discountId);
 
             if (discount is not null)
             {
@@ -81,14 +73,14 @@ namespace PoS.Services.Services
 
         public async Task<DiscountResponse?> UpdateDiscountByIdAsync(Guid discountId, DiscountUpdateRequest discountUpdateRequest)
         {
-            var updatedDiscount = await _discountLoyaltyRepository.UpdateDiscountAsync(
-                discountId,
-                Mapping.Mapper.Map<DiscountUpdateRequest, Discount>(discountUpdateRequest)
-            );
+            var discountUpdated = Mapping.Mapper.Map<DiscountUpdateRequest, Discount>(discountUpdateRequest);
+            discountUpdated.Id = discountId;
 
-            if (updatedDiscount is not null)
+            discountUpdated = await _discountRepository.UpdateAsync(discountUpdated);
+
+            if (discountUpdated is not null)
             {
-                return Mapping.Mapper.Map<Discount, DiscountResponse>(updatedDiscount);
+                return Mapping.Mapper.Map<Discount, DiscountResponse>(discountUpdated);
             }
 
             return null;
@@ -96,7 +88,7 @@ namespace PoS.Services.Services
 
         public async Task<bool> DeleteDiscountByIdAsync(Guid discountId)
         {
-            return await _discountLoyaltyRepository.DeleteDiscountByIdAsync(discountId);
+            return await _discountRepository.DeleteAsync(discountId);
         }
     }
 }

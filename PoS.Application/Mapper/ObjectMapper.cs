@@ -31,9 +31,6 @@ namespace PoS.Application.Mapper
             //CreateMap<UserInner, Customer>();
 
             CreateMap<CustomerRequest, Customer>();
-            CreateMap<CustomerRequest, User>();
-
-            CreateMap<User, UserResponse>();
 
             //CreateMap<UserInner, User>();
 
@@ -52,10 +49,6 @@ namespace PoS.Application.Mapper
             CreateMap<Staff, StaffResponse>();
 
             CreateMap<StaffRequest, Staff>();
-
-            CreateMap<StaffRequest, User>();
-
-            CreateMap<UserLogin, UserLoginResponse>();
 
             CreateMap<DiscountRequest, Discount>();
             CreateMap<Discount, DiscountResponse>();
