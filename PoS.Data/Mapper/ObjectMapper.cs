@@ -56,6 +56,10 @@ namespace PoS.Data.Mapper
             CreateMap<StaffRequest, User>();
 
             CreateMap<UserLogin, UserLoginResponse>();
+
+            CreateMap<DiscountRequest, Discount>();
+            CreateMap<Discount, DiscountResponse>();
+            CreateMap<DiscountUpdateRequest, Discount>();
             // add more
 
 

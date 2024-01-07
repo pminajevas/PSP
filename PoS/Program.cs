@@ -6,14 +6,26 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using Microsoft.OpenApi.Models;
+using PoS.Data.Repositories.Interfaces;
+using PoS.Data.Repositories;
+using PoS.API.Middleware;
+using PoS.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
 // Add services to the container.
+
 builder.Services.AddScoped<IBusinessService, BusinessService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IItemService, ItemService>();
+builder.Services.AddScoped<IDiscountService, DiscountService>();
 builder.Services.AddScoped<IServicesService, ServicesService>();
+
+builder.Services.AddScoped<IDiscountLoyaltyRepository, DiscountLoyaltyRepository>();
+
 builder.Services.AddSingleton<IFilterValidator, FilterValidator>();
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
@@ -82,6 +94,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseHttpsRedirection();
 
