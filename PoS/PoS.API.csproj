@@ -20,7 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\PoS.Data\PoS.Data.csproj" />
     <ProjectReference Include="..\PoS.Services\PoS.Services.csproj" />
-    <ProjectReference Include="..\PoS.Shared\PoS.Shared.csproj" />
   </ItemGroup>
 
 </Project>
