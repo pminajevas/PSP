@@ -28,10 +28,12 @@ namespace PoS.Controllers
     public class ItemServiceApiController : ControllerBase
     {
         IItemService _itemService;
+        IServicesService _servicesService;
 
-        public ItemServiceApiController(IItemService itemService)
+        public ItemServiceApiController(IItemService itemService, IServicesService servicesService)
         {
             _itemService = itemService;
+            _servicesService = servicesService;
         }
 
         /// <summary>
@@ -39,15 +41,18 @@ namespace PoS.Controllers
         /// </summary>
         /// <param name="itemId"></param>
         /// <response code="204">No Content</response>
-        //[HttpDelete]
-        //[Route("/ItemService/Item/{itemId}")]
-        //public virtual IActionResult DeleteItemAsync([FromRoute][Required]Guid? itemId)
-        //{ 
-        //    //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-        //    // return StatusCode(204);
+        [HttpDelete]
+        [Route("/ItemService/Item/{itemId}")]
+        public async Task<IActionResult> DeleteItemAsync([FromRoute][Required] Guid itemId)
+        {
+            bool isDeleted = await _itemService.DeleteItemAsync(itemId);
+            if(isDeleted)
+            {
+                return Ok();
+            }
 
-        //    throw new NotImplementedException();
-        //}
+            return Problem();
+        }
 
         /// <summary>
         /// 
@@ -56,7 +61,7 @@ namespace PoS.Controllers
         /// <response code="200">Success</response>
         [HttpGet]
         [Route("/ItemService/Item/{itemId}")]
-        public async Task<IActionResult> GetItemAsync([FromRoute][Required]Guid itemId)
+        public async Task<IActionResult> GetItemAsync([FromRoute][Required] Guid itemId)
         {
             var result = await _itemService.GetItemByIdAsync(itemId);
 
@@ -65,7 +70,7 @@ namespace PoS.Controllers
                 return Ok(result);
             }
 
-            return NotFound();
+            return NoContent();
         }
 
         /// <summary>
@@ -84,7 +89,7 @@ namespace PoS.Controllers
                 return Ok(item);
             }
 
-            return NotFound();
+            return NoContent();
         }
 
         ///// <summary>
@@ -127,7 +132,7 @@ namespace PoS.Controllers
                 return Ok(items);
             }
 
-            return NotFound();
+            return NoContent();
         }
 
         ///// <summary>
@@ -135,57 +140,55 @@ namespace PoS.Controllers
         ///// </summary>
         ///// <param name="body"></param>
         ///// <response code="201">Created</response>
-        //[HttpPost]
-        //[Route("/ItemService/Service")]
-        //[SwaggerResponse(statusCode: 201, type: typeof(Service), description: "Created")]
-        //public virtual IActionResult CreateServiceAsync([FromBody]Service body)
-        //{ 
-        //    //TODO: Uncomment the next line to return response 201 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-        //    // return StatusCode(201, default(Service));
-        //    string exampleJson = null;
-        //    exampleJson = "{\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
+        [HttpPost]
+        [Route("/ItemService/Service")]
+        public async Task<IActionResult> CreateServiceAsync([FromBody] Service service)
+        {
+            var newService = await _servicesService.CreateServiceAsync(service);
+            if(newService != null)
+            {
+                return Ok(newService);
+            }
 
-        //                var example = exampleJson != null
-        //                ? JsonConvert.DeserializeObject<Service>(exampleJson)
-        //                : default(Service);            //TODO: Change the data returned
-        //    return new ObjectResult(example);
-        //}
+            return Problem();
+        }
 
         ///// <summary>
         ///// 
         ///// </summary>
         ///// <param name="serviceId"></param>
         ///// <response code="204">No Content</response>
-        //[HttpDelete]
-        //[Route("/ItemService/Service/{serviceId}")]
-        //public virtual IActionResult DeleteServiceAsync([FromRoute][Required]Guid? serviceId)
-        //{ 
-        //    //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-        //    // return StatusCode(204);
+        [HttpDelete]
+        [Route("/ItemService/Service/{serviceId}")]
+        public async Task<IActionResult> DeleteServiceAsync([FromRoute][Required] Guid serviceId)
+        {
+            bool isDeleted = await _servicesService.DeleteServiceAsync(serviceId);
+            if(isDeleted)
+            {
+                return Ok();
+            }
 
-        //    throw new NotImplementedException();
-        //}
+            return Problem();
+
+        }
 
         ///// <summary>
         ///// 
         ///// </summary>
         ///// <param name="serviceId"></param>
         ///// <response code="200">Success</response>
-        //[HttpGet]
-        //[Route("/ItemService/Service/{serviceId}")]
-        //[SwaggerResponse(statusCode: 200, type: typeof(Service), description: "Success")]
-        //public virtual IActionResult GetServiceAsync([FromRoute][Required]Guid? serviceId)
-        //{ 
-        //    //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-        //    // return StatusCode(200, default(Service));
-        //    string exampleJson = null;
-        //    exampleJson = "{\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
+        [HttpGet]
+        [Route("/ItemService/Service/{serviceId}")]
+        public async Task<IActionResult> GetServiceAsync([FromRoute][Required] Guid serviceId)
+        {
+            var service = await _servicesService.GetServiceByIdAsync(serviceId);
+            if(service != null)
+            {
+                return Ok(service);
+            }
 
-        //                var example = exampleJson != null
-        //                ? JsonConvert.DeserializeObject<Service>(exampleJson)
-        //                : default(Service);            //TODO: Change the data returned
-        //    return new ObjectResult(example);
-        //}
+            return NoContent();
+        }
 
         ///// <summary>
         ///// 
@@ -193,21 +196,18 @@ namespace PoS.Controllers
         ///// <param name="serviceId"></param>
         ///// <param name="body"></param>
         ///// <response code="200">Success</response>
-        //[HttpPut]
-        //[Route("/ItemService/Service/{serviceId}")]
-        //[SwaggerResponse(statusCode: 200, type: typeof(Service), description: "Success")]
-        //public virtual IActionResult UpdateServiceAsync([FromRoute][Required]string serviceId, [FromBody]Service body)
-        //{ 
-        //    //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-        //    // return StatusCode(200, default(Service));
-        //    string exampleJson = null;
-        //    exampleJson = "{\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}";
+        [HttpPut]
+        [Route("/ItemService/Service/{serviceId}")]
+        public async Task<IActionResult> UpdateServiceAsync([FromRoute][Required] Guid serviceId, [FromBody] Service body)
+        {
+            var service = await _servicesService.UpdateServiceAsync(serviceId, body);
+            if(service != null)
+            {
+                return Ok(service);
+            }
 
-        //                var example = exampleJson != null
-        //                ? JsonConvert.DeserializeObject<Service>(exampleJson)
-        //                : default(Service);            //TODO: Change the data returned
-        //    return new ObjectResult(example);
-        //}
+            return NoContent();
+        }
 
         ///// <summary>
         ///// 
@@ -220,20 +220,17 @@ namespace PoS.Controllers
         ///// <param name="pageIndex"></param>
         ///// <param name="pageSize"></param>
         ///// <response code="200">Success</response>
-        //[HttpGet]
-        //[Route("/ItemService/Services")]
-        //[SwaggerResponse(statusCode: 200, type: typeof(List<Service>), description: "Success")]
-        //public virtual IActionResult GetServicesAsync([FromQuery]Guid? businessId, [FromQuery]Guid? staffId, [FromQuery]Guid? discountId, [FromQuery]string orderBy, [FromQuery]string sorting, [FromQuery]int? pageIndex, [FromQuery]int? pageSize)
-        //{ 
-        //    //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-        //    // return StatusCode(200, default(List<Service>));
-        //    string exampleJson = null;
-        //    exampleJson = "[ {\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n}, {\n  \"duration\" : 0.8008281904610115,\n  \"price\" : 6.027456183070403,\n  \"businessId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceDescription\" : \"serviceDescription\",\n  \"id\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"discountId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\",\n  \"serviceName\" : \"serviceName\",\n  \"staffId\" : \"046b6c7f-0b8a-43b9-b35d-6489e6daee91\"\n} ]";
+        [HttpGet]
+        [Route("/ItemService/Services")]
+        public async Task<IActionResult> GetServicesAsync()
+        {
+            var services = await _servicesService.GetServicesAsync();
+            if(services.Any())
+            {
+                return Ok(services);
+            }
 
-        //                var example = exampleJson != null
-        //                ? JsonConvert.DeserializeObject<List<Service>>(exampleJson)
-        //                : default(List<Service>);            //TODO: Change the data returned
-        //    return new ObjectResult(example);
-        //}
+            return NoContent();
+        }
     }
 }
