@@ -7,8 +7,7 @@ namespace PoS.Core.Entities
         [Key]
         public Guid Id { get; set; }
 
-        [Required]
-        public Guid CustomerId { get; set; }
+        public Guid? CustomerId { get; set; }
 
         [Required]
         public Guid ServiceId { get; set; }

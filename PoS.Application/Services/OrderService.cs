@@ -21,6 +21,9 @@ namespace PoS.Application.Services
         private readonly IItemRepository _itemRepository;
         private readonly IServiceRepository _serviceRepository;
         private readonly IDiscountRepository _discountRepository;
+        private readonly ILoyaltyProgramRepository _loyaltyProgramRepository;
+        private readonly IPaymentRepository _paymentRepository;
+        private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly IMapper _mapper;
 
         public OrderService(
@@ -33,6 +36,9 @@ namespace PoS.Application.Services
             IItemRepository itemRepository,
             IServiceRepository serviceRepository,
             IDiscountRepository discountRepository,
+            ILoyaltyProgramRepository loyaltyProgramRepository,
+            IPaymentRepository paymentRepository,
+            IPaymentMethodRepository paymentMethodRepository,
             IMapper mapper
         )
         {
@@ -45,6 +51,9 @@ namespace PoS.Application.Services
             _itemRepository = itemRepository;
             _serviceRepository = serviceRepository;
             _discountRepository = discountRepository;
+            _loyaltyProgramRepository = loyaltyProgramRepository;
+            _paymentRepository = paymentRepository;
+            _paymentMethodRepository = paymentMethodRepository;
             _mapper = mapper;
         }
 
@@ -57,9 +66,20 @@ namespace PoS.Application.Services
                 throw new PoSException($"Business with id - {order.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
             }
 
-            if (!await _customerRepository.Exists(x => x.Id == order.CustomerId))
+            if (order.CustomerId is not null)
             {
-                throw new PoSException($"Customer with id - {order.CustomerId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                if (!await _customerRepository.Exists(x => x.Id == order.CustomerId))
+                {
+                    throw new PoSException($"Customer with id - {order.CustomerId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+
+            if (order.DiscountId is not null)
+            {
+                if (!await _discountRepository.Exists(x => x.Id == order.DiscountId))
+                {
+                    throw new PoSException($"Discount with id - {order.DiscountId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
             }
 
             if (!await _staffRepository.Exists(x => x.Id == order.StaffId))
@@ -72,7 +92,7 @@ namespace PoS.Application.Services
                 throw new PoSException($"Tax with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
             }
 
-            order.Status = Core.Enums.OrderStatusEnum.Unpaid;
+            order.Status = Core.Enums.OrderStatusEnum.Draft;
             order.TotalAmount = 0;
             order.Tip = 0;
 
@@ -163,7 +183,7 @@ namespace PoS.Application.Services
                 throw new PoSException($"Order with id - {orderId} does not exist and can not be updated",
                     System.Net.HttpStatusCode.BadRequest);
 
-            if (oldOrder.Status == Core.Enums.OrderStatusEnum.Unpaid)
+            if (oldOrder.Status == Core.Enums.OrderStatusEnum.Draft)
             {
                 if (!await _businessRepository.Exists(x => x.Id == order.BusinessId))
                 {
@@ -187,7 +207,7 @@ namespace PoS.Application.Services
             }
             else
             {
-                throw new PoSException($"Order with id - {orderId} has been paid and can not be updated", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException($"Order with id - {orderId} has been paid or is confirmed and can not be updated", System.Net.HttpStatusCode.BadRequest);
             }
 
             order.Status = oldOrder.Status;
@@ -203,9 +223,9 @@ namespace PoS.Application.Services
                 throw new PoSException($"Order with id - {orderId} does not exist",
                     System.Net.HttpStatusCode.BadRequest);
 
-            if (order.Status == Core.Enums.OrderStatusEnum.Paid)
+            if (order.Status != Core.Enums.OrderStatusEnum.Draft)
             {
-                throw new PoSException($"Paid orders can not be deleted", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException($"Paid or confirmed orders can not be deleted", System.Net.HttpStatusCode.BadRequest);
             }
 
             IEnumerable<OrderItem> orderItems = await _orderItemRepository.GetAsync(x => x.OrderId == orderId);
@@ -226,9 +246,9 @@ namespace PoS.Application.Services
                 throw new PoSException($"Can not add item, order with id - {orderItem.OrderId} does not exist",
                     System.Net.HttpStatusCode.BadRequest);
 
-            if (order.Status == Core.Enums.OrderStatusEnum.Paid)
+            if (order.Status != Core.Enums.OrderStatusEnum.Draft)
             {
-                throw new PoSException($"Can not add items to order, order with id - {orderItem.OrderId} is paid and can not be modified",
+                throw new PoSException($"Can not add items to order, order with id - {orderItem.OrderId} is paid or confirmed and can not be modified",
                     System.Net.HttpStatusCode.BadRequest);
             }
 
@@ -357,9 +377,9 @@ namespace PoS.Application.Services
                 throw new PoSException($"Can not update item, order with id - {orderItem.OrderId} no longer exists",
                     System.Net.HttpStatusCode.BadRequest);
 
-            if (order.Status == Core.Enums.OrderStatusEnum.Paid)
+            if (order.Status != Core.Enums.OrderStatusEnum.Draft)
             {
-                throw new PoSException($"Can not edit order items, order with id - {orderItem.OrderId} is paid and can not be modified",
+                throw new PoSException($"Can not edit order items, order with id - {orderItem.OrderId} is paid or confirmed and can not be modified",
                     System.Net.HttpStatusCode.BadRequest);
             }
 
@@ -441,9 +461,9 @@ namespace PoS.Application.Services
                 throw new PoSException($"Order item's order with id - {orderItem.OrderId} no longer exists",
                     System.Net.HttpStatusCode.BadRequest);
 
-            if (order.Status == Core.Enums.OrderStatusEnum.Paid)
+            if (order.Status != Core.Enums.OrderStatusEnum.Draft)
             {
-                throw new PoSException($"Paid order's items can not be deleted", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException($"Paid or confirmed order's items can not be deleted", System.Net.HttpStatusCode.BadRequest);
             }
 
             order.TotalAmount -= orderItem.Subtotal;
@@ -451,6 +471,116 @@ namespace PoS.Application.Services
             await _orderRepository.UpdateAsync(order);
 
             return await _orderItemRepository.DeleteAsync(orderItemId);
+        }
+
+        public async Task<ReceiptResponse> GenerateReceipt(ReceiptRequest receiptRequest)
+        {
+            var order = await _orderRepository.GetFirstAsync(x => x.Id == receiptRequest.OrderId) ??
+                throw new PoSException($"Order with id - {receiptRequest.OrderId} does not exist",
+                    System.Net.HttpStatusCode.BadRequest);
+
+            var staff = await _staffRepository.GetByIdAsync(order.StaffId) ??
+                throw new PoSException($"Order with id - {receiptRequest.OrderId} does not have correct worker assigned",
+                    System.Net.HttpStatusCode.BadRequest);
+
+            var tax = await _taxRepository.GetFirstAsync(x => x.Id == order.TaxId && x.ValidFrom < DateTime.Now && x.ValidUntil > DateTime.Now) ??
+                throw new PoSException($"Order with id - {receiptRequest.OrderId} does not have valid tax assigned",
+                    System.Net.HttpStatusCode.BadRequest);
+
+            var response = new ReceiptResponse();
+            double discountVal = 0;
+
+            if (order.DiscountId is not null)
+            {
+                var discount = await _discountRepository.GetFirstAsync(x => x.Id == order.DiscountId);
+
+                if (discount is not null && discount.ValidUntil >= DateTime.Now)
+                {
+                    discountVal = discount.DiscountPercentage;
+                }
+            }
+
+            response.ReceiptDateTime = DateTime.Now;
+            response.EmployeeName = staff.FirstName;
+
+            var orderItems = await _orderItemRepository.GetAsync(x => x.OrderId == order.Id);
+            var receiptLines = new List<ReceiptLineResponse>();
+
+            foreach (var orderItem in orderItems )
+            {
+                var receiptLine = new ReceiptLineResponse();
+
+                var item = await _itemRepository.GetByIdAsync(orderItem.ItemId) ??
+                    throw new PoSException($"Item with id - {orderItem.ItemId} in requested order does not exist",
+                        System.Net.HttpStatusCode.BadRequest); ;
+
+                receiptLine.ItemName = item.ItemName;
+                receiptLine.UnitPrice = orderItem.UnitPrice;
+                receiptLine.Quantity = orderItem.Quantity;
+                receiptLine.DiscountAmount = orderItem.UnitPriceDiscount;
+                receiptLine.TotalLineAmount = orderItem.Subtotal;
+
+                receiptLines.Add(receiptLine);
+            }
+
+            response.ReceiptLines = receiptLines;
+
+            response.TotalAmountBeforeDiscount = order.TotalAmount;
+
+            response.TotalAmountWithDiscount = order.TotalAmount - (order.TotalAmount * discountVal);
+
+            switch (tax.Category)
+            {
+                case Core.Enums.TaxCategoryEnum.Percent:
+                    response.TotalAmountWithDiscountAfterTaxes = response.TotalAmountWithDiscount * (tax.TaxValue / 100 + 1);
+                    break;
+                case Core.Enums.TaxCategoryEnum.Flat:
+                    response.TotalAmountWithDiscountAfterTaxes = response.TotalAmountWithDiscount + tax.TaxValue;
+                    break;
+            }
+
+            if (order.Status == Core.Enums.OrderStatusEnum.Draft)
+            {
+                if (order.CustomerId is not null)
+                {
+                    var customer = await _customerRepository.GetByIdAsync(order.CustomerId);
+
+                    if (customer is not null && customer.LoyaltyId is not null)
+                    {
+                        var loyalty = await _loyaltyProgramRepository.GetByIdAsync(customer.LoyaltyId);
+
+                        if (loyalty is not null)
+                        {
+                            customer.Points += loyalty.PointsPerPurchase;
+
+                            await _customerRepository.UpdateAsync(customer);
+                        }
+                    }
+                }
+
+                order.Status = Core.Enums.OrderStatusEnum.Confirmed;
+                await _orderRepository.UpdateAsync(order);
+            }
+
+            if (order.Status == Core.Enums.OrderStatusEnum.Invoiced)
+            {
+                var payment = await _paymentRepository.GetFirstAsync(x => x.OrderId == order.Id);
+
+                if (payment is not null)
+                {
+                    var paymentMethod = await _paymentMethodRepository.GetByIdAsync(payment.PaymentMethodId);
+
+                    if (paymentMethod is not null)
+                    {
+                        response.PaymentMethod = paymentMethod.MethodName;
+                    }
+
+                    response.PaymentDateTime = payment.PaymentDate;
+                    response.PaymentStatus = payment.Status;
+                }
+            }
+
+            return response;
         }
     }
 }

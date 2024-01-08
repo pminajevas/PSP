@@ -42,9 +42,12 @@ namespace PoS.Application.Services
             var service = await _serviceRepository.GetFirstAsync(x => x.Id == appointment.ServiceId);
             var business = await _businessRepository.GetFirstAsync(x => x.Id == appointment.BusinessId);
 
-            if (!await _customerRepository.Exists(x => x.Id == appointment.CustomerId))
+            if (appointment.CustomerId is not null)
             {
-                throw new PoSException($"Customer with id - {appointment.CustomerId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                if (!await _customerRepository.Exists(x => x.Id == appointment.CustomerId))
+                {
+                    throw new PoSException($"Customer with id - {appointment.CustomerId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
             }
 
             if (service is null)
@@ -165,9 +168,12 @@ namespace PoS.Application.Services
             var service = await _serviceRepository.GetFirstAsync(x => x.Id == appointment.ServiceId);
             var business = await _businessRepository.GetFirstAsync(x => x.Id == appointment.BusinessId);
 
-            if (!await _customerRepository.Exists(x => x.Id == appointment.CustomerId))
+            if (appointment.CustomerId is not null)
             {
-                throw new PoSException($"Customer with id - {appointment.CustomerId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                if (!await _customerRepository.Exists(x => x.Id == appointment.CustomerId))
+                {
+                    throw new PoSException($"Customer with id - {appointment.CustomerId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
             }
 
             if (service is null)

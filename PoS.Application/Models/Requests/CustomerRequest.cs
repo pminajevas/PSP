@@ -28,7 +28,5 @@ namespace PoS.Application.Models.Requests
 
         [MaxLength(500)]
         public string? Address { get; set; }
-
-        public double? Points { get; set; }
     }
 }

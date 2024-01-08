@@ -5,7 +5,8 @@ namespace PoS.Core.Enums
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum OrderStatusEnum
     {
-        Paid = 0,
-        Unpaid = 1
+        Draft = 0,
+        Confirmed = 1,
+        Invoiced = 2
     }
 }

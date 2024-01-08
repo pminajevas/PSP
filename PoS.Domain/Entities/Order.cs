@@ -10,8 +10,7 @@ namespace PoS.Core.Entities
         [Key]
         public Guid Id { get; set; }
 
-        [Required]
-        public Guid CustomerId { get; set; }
+        public Guid? CustomerId { get; set; }
 
         [Required]
         public Guid BusinessId { get; set; }
@@ -22,8 +21,10 @@ namespace PoS.Core.Entities
         [Required]
         public Guid TaxId { get; set; }
 
+        public Guid? DiscountId { get; set; }
+
         [Required]
-        public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Unpaid;
+        public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Draft;
 
         [Required]
         public DateTime Date { get; set; }

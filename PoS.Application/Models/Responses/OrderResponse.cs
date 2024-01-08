@@ -14,6 +14,8 @@ namespace PoS.Application.Models.Responses
 
         public Guid? TaxId { get; set; }
 
+        public Guid? DiscountId { get; set; }
+
         public OrderStatusEnum? Status { get; set; }
 
         public DateTime? Date { get; set; }
