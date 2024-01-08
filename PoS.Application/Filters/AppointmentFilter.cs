@@ -6,7 +6,7 @@
 
         public Guid? ServiceId { get; set; }
 
-        public Guid? EmployeeId { get; set; }
+        public Guid? StaffId { get; set; }
 
         public Guid? BusinessId { get; set; }
 

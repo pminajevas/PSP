@@ -11,10 +11,12 @@ namespace PoS.Controllers
     public class OrdersController : ControllerBase
     {
         private readonly IOrderService _orderService;
+        private readonly IAppointmentService _appointmentService;
 
-        public OrdersController(IOrderService orderService)
+        public OrdersController(IOrderService orderService, IAppointmentService appointmentService)
         {
             _orderService = orderService;
+            _appointmentService = appointmentService;
         }
 
         [HttpPost]
@@ -101,21 +103,24 @@ namespace PoS.Controllers
         [Route("/Orders/Appointment")]
         public async Task<IActionResult> CreateAppointment([FromBody] AppointmentRequest createRequest)
         {
-            throw new NotImplementedException();
+            var newAppointment = await _appointmentService.AddAppointmentAsync(createRequest);
+
+            return CreatedAtAction("GetAppointment", new { appointmentId = newAppointment.Id }, newAppointment);
         }
 
         [HttpGet]
         [Route("/Orders/Appointments")]
         public async Task<IActionResult> GetAppointments([FromQuery] AppointmentFilter appointmentFilter)
         {
-            throw new NotImplementedException();
+            return Ok(await _appointmentService.GetAppointmentsAsync(appointmentFilter));
         }
 
         [HttpGet]
         [Route("/Orders/Appointment/{appointmentId}")]
+        [ActionName("GetAppointment")]
         public async Task<IActionResult> GetAppointmentById([FromRoute][Required] Guid appointmentId)
         {
-            throw new NotImplementedException();
+            return Ok(await _appointmentService.GetAppointmentByIdAsync(appointmentId));
         }
 
         // TODO : Implement
@@ -130,14 +135,16 @@ namespace PoS.Controllers
         [Route("/Orders/Appointment/{appointmentId}")]
         public async Task<IActionResult> UpdateAppointment([FromRoute][Required] Guid appointmentId, [FromBody] AppointmentRequest updateRequest)
         {
-            throw new NotImplementedException();
+            return Ok(await _appointmentService.UpdateAppointmentByIdAsync(appointmentId, updateRequest));
         }
 
         [HttpDelete]
         [Route("/Orders/Appointment/{appointmentId}")]
         public async Task<IActionResult> DeleteAppointment([FromRoute][Required]Guid appointmentId)
         {
-            throw new NotImplementedException();
+            await _appointmentService.DeleteAppointmentByIdAsync(appointmentId);
+
+            return NoContent();
         }
     }
 }
