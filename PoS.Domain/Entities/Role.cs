@@ -10,7 +10,7 @@ namespace PoS.Core.Entities
         public Guid Id { get; set; }
 
         [Required]
-        public string RoleName { get; set; }
+        public string RoleName { get; set; } = string.Empty;
 
         [MaxLength(500)]
         public string? Description { get; set; }

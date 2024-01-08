@@ -5,22 +5,24 @@ namespace PoS.Core.Entities
     public class Appointment
     {
         [Key]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
-        public Guid? CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
 
         [Required]
-        public Guid? ServiceId { get; set; }
-
-        public Guid? EmployeeId { get; set; }
+        public Guid ServiceId { get; set; }
 
         [Required]
-        public Guid? BusinessId { get; set; }
+        public Guid EmployeeId { get; set; }
 
         [Required]
-        public DateTime? ReservationTime { get; set; }
+        public Guid BusinessId { get; set; }
 
-        public double? Duration { get; set; }
+        [Required]
+        public DateTime ReservationTime { get; set; }
+
+        [Required]
+        public double Duration { get; set; }
     }
 }

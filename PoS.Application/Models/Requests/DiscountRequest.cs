@@ -11,6 +11,7 @@ namespace PoS.Application.Models.Requests
         [Range(0, 1)]
         public double DiscountPercentage { get; set; }
 
-        public DateTime? ValidUntil { get; set; }
+        [Required]
+        public DateTime ValidUntil { get; set; }
     }
 }

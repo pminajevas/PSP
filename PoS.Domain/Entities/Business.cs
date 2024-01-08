@@ -11,10 +11,11 @@ namespace PoS.Core.Entities
 
         [Required]
         [MaxLength(100)]
-        public string BusinessName { get; set; }
+        public string BusinessName { get; set; } = string.Empty;
 
+        [Required]
         [MaxLength(500)]
-        public string Location { get; set; }
+        public string Location { get; set; } = string.Empty;
 
         [Required]
         [Range(0, 1440)]

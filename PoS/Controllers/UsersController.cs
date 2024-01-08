@@ -138,7 +138,7 @@ namespace PoS.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetRoleByIdAsync([FromRoute][Required] Guid roleId)
         {
-            return Ok(_roleService.GetRoleByRoleIdAsync(roleId));
+            return Ok(await _roleService.GetRoleByRoleIdAsync(roleId));
         }
 
         [HttpPut]

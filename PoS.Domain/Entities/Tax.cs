@@ -12,21 +12,22 @@ namespace PoS.Core.Entities
 
         [Required]
         [MaxLength(50)]
-        public string TaxName { get; set; }
+        public string TaxName { get; set; } = string.Empty;
 
         [MaxLength(500)]
-        public string TaxDescription { get; set; }
+        public string? TaxDescription { get; set; }
 
         [Required]
         [Range(0, 1)]
         public double? TaxPercentage { get; set; }
 
         [Required]
-        public TaxCategoryEnum? Category { get; set; }
+        public TaxCategoryEnum Category { get; set; }
 
         [Required]
-        public DateTime? ValidFrom { get; set; }
+        public DateTime ValidFrom { get; set; }
 
-        public DateTime? ValidUntil { get; set; }
+        [Required]
+        public DateTime ValidUntil { get; set; }
     }
 }

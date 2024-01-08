@@ -11,18 +11,18 @@ namespace PoS.Core.Entities
         public Guid? Id { get; set; }
 
         [Required]
-        public Guid? OrderId { get; set; }
+        public Guid OrderId { get; set; }
 
         [Required]
-        public Guid? PaymentMethodId { get; set; }
+        public Guid PaymentMethodId { get; set; }
 
         [Required]
-        public PaymentStatusEnum? Status { get; set; }
+        public PaymentStatusEnum Status { get; set; } = PaymentStatusEnum.Unpaid;
 
         [Required]
-        public double? Amount { get; set; }
+        public double Amount { get; set; }
 
         [Required]
-        public DateTime? PaymentDate { get; set; }
+        public DateTime PaymentDate { get; set; }
     }
 }

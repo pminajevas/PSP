@@ -1,14 +1,23 @@
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PoS.Application.Models.Requests
 {
     public class BusinessRequest
     {
+        [Required]
+        [MaxLength(100)]
+        public string BusinessName { get; set; } = string.Empty;
 
-        public string BusinessName { get; set; }
+        [Required]
+        [MaxLength(500)]
+        public string Location { get; set; } = string.Empty;
 
-        public string Location { get; set; }
+        [Required]
+        [Range(0, 1440)]
+        public int WorkingHoursStart { get; set; }
 
+        [Required]
+        [Range(0, 1440)]
+        public int WorkingHoursEnd { get; set; }
     }
 }

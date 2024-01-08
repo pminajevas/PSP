@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PoS.Core.Entities
 {
-    public  class LoyaltyProgram
+    public class LoyaltyProgram
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]

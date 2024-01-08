@@ -8,24 +8,24 @@ namespace PoS.Core.Entities
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
-        public Guid? OrderId { get; set; }
+        public Guid OrderId { get; set; }
 
         [Required]
-        public Guid? ItemId { get; set; }
+        public Guid ItemId { get; set; }
 
         [Required]
-        public double? UnitPrice { get; set; }
+        public double UnitPrice { get; set; }
 
         [Required]
-        public OrderItemTypeEnum? Type { get; set; }
+        public OrderItemTypeEnum Type { get; set; }
 
         [Required]
-        public double? Quantity { get; set; }
+        public double Quantity { get; set; }
 
         [Required]
-        public double? Subtotal { get; set; }
+        public double Subtotal { get; set; }
     }
 }
