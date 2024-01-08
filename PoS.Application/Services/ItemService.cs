@@ -4,6 +4,7 @@ using PoS.Application.Abstractions.Repositories;
 using PoS.Application.Filters;
 using PoS.Application.Models.Requests;
 using PoS.Application.Models.Responses;
+using PoS.Application.Services.Interfaces;
 using PoS.Core.Entities;
 using PoS.Core.Exceptions;
 

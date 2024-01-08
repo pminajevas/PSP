@@ -1,17 +1,13 @@
 ﻿using PoS.Core.Enums;
-using System.ComponentModel.DataAnnotations;
 
-namespace PoS.Application.Models.Requests
+namespace PoS.Application.Models.Responses
 {
-    public class CouponRequest
+    public class CouponResponse
     {
-        [Required]
+        public Guid Id { get; set; }
         public Guid BusinessId { get; set; }
-        [Required]
         public double Amount { get; set; }
-        [Required]
         public CouponValidityEnum Validity { get; set; }
-        [Required]
         public DateTime ValidUntil { get; set; }
     }
 }

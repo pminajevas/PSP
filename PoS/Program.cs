@@ -28,6 +28,8 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IServicesService, ServicesService>();
 builder.Services.AddScoped<IStaffService, StaffService>();
+builder.Services.AddScoped<ILoyaltyService, LoyaltyService>();
+builder.Services.AddScoped<ICouponService, CouponService>();
 
 // Add repositories to the container
 

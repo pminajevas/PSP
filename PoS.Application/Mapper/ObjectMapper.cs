@@ -12,8 +12,6 @@ namespace PoS.Application.Mapper
             CreateMap<BusinessRequest, Business>();
             CreateMap<Business,  BusinessResponse>();
 
-            CreateMap<CouponRequest,  Coupon>();
-
             CreateMap<CustomerRequest, Customer>();
             CreateMap<Customer, CustomerResponse>();
 
@@ -25,6 +23,12 @@ namespace PoS.Application.Mapper
 
             CreateMap<StaffRequest, Staff>();
             CreateMap<Staff, StaffResponse>();
+
+            CreateMap<LoyaltyProgramRequest, LoyaltyProgram>();
+            CreateMap<LoyaltyProgram, LoyaltyProgramResponse>();
+
+            CreateMap<CouponRequest, Coupon>();
+            CreateMap<Coupon, CouponResponse>();
         }
     }
 

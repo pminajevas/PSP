@@ -6,6 +6,7 @@ using PoS.Core.Entities;
 using PoS.Application.Filters;
 using AutoMapper;
 using PoS.Core.Exceptions;
+using PoS.Application.Services.Interfaces;
 
 namespace PoS.Services.Services
 {
