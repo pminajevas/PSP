@@ -2,7 +2,7 @@
 using PoS.Application.Models.Requests;
 using PoS.Application.Models.Responses;
 
-namespace PoS.Services.Services
+namespace PoS.Application.Services.Interfaces
 {
     public interface IDiscountService
     {

@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using PoS.Services.Services;
 using PoS.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using PoS.Application.Filters;
+using PoS.Application.Services.Interfaces;
 
 namespace PoS.Controllers
 {

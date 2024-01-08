@@ -9,17 +9,19 @@ namespace PoS.Core.Entities
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
-        public Guid? BusinessId { get; set; }
+        public Guid BusinessId { get; set; }
 
         [Required]
-        public double? Amount { get; set; }
+        public double Amount { get; set; }
 
-        public CouponValidityEnum? Validity { get; set; }
+        [Required]
+        public CouponValidityEnum Validity { get; set; }
 
-        public DateTime? ValidUntil { get; set; }
+        [Required]
+        public DateTime ValidUntil { get; set; }
 
     }
 }

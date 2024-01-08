@@ -1,21 +1,29 @@
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
-using PoS.Services.Services;
 using PoS.Application.Models.Requests;
 using PoS.Application.Filters;
 using Microsoft.AspNetCore.Authorization;
+using PoS.Application.Services.Interfaces;
+using PoS.Core.Entities;
 
 namespace PoS.Controllers
 {
     [ApiController]
     public class DiscountLoyaltyController : ControllerBase
     {
-        private IDiscountService _discountLoyaltyService;
+        private IDiscountService _discountService;
+        private ILoyaltyService _loyaltyService;
+        private ICouponService _couponService;
 
-        public DiscountLoyaltyController(IDiscountService discountLoyaltyService)
+        public DiscountLoyaltyController(
+            IDiscountService discountService,
+            ILoyaltyService loyaltyService,
+            ICouponService couponService)
         {
-            _discountLoyaltyService = discountLoyaltyService;
+            _discountService = discountService;
+            _loyaltyService = loyaltyService;
+            _couponService = couponService;
         }
 
         [HttpPost]
@@ -23,7 +31,9 @@ namespace PoS.Controllers
         [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> CreateDiscount([FromBody] DiscountRequest discountRequest)
         {
-            return CreatedAtAction("CreateDiscount", await _discountLoyaltyService.AddDiscountAsync(discountRequest));
+            var newDiscount = await _discountService.AddDiscountAsync(discountRequest);
+
+            return CreatedAtAction("GetDiscount", new { discountId = newDiscount.Id }, newDiscount);
         }
 
         [HttpGet]
@@ -31,15 +41,16 @@ namespace PoS.Controllers
         [Authorize(Roles = "Admin, Manager, Staff")]
         public async Task<IActionResult> GetDiscounts([FromQuery] DiscountFilter filter)
         {
-            return Ok(await _discountLoyaltyService.GetDiscountsAsync(filter));
+            return Ok(await _discountService.GetDiscountsAsync(filter));
         }
 
         [HttpGet]
         [Route("/DiscountLoyalty/Discount/{discountId}")]
+        [ActionName("GetDiscount")]
         [Authorize(Roles = "Admin, Manager, Staff")]
         public async Task<IActionResult> GetDiscountById([FromRoute] Guid discountId)
         {
-            return Ok(await _discountLoyaltyService.GetDiscountByIdAsync(discountId));
+            return Ok(await _discountService.GetDiscountByIdAsync(discountId));
         }
 
         [HttpPut]
@@ -47,7 +58,7 @@ namespace PoS.Controllers
         [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> UpdateDiscountById([FromRoute][Required] Guid discountId, [FromBody] DiscountRequest discountRequest)
         {
-            return Ok(await _discountLoyaltyService.UpdateDiscountByIdAsync(discountId, discountRequest));
+            return Ok(await _discountService.UpdateDiscountByIdAsync(discountId, discountRequest));
         }
 
         [HttpDelete]
@@ -55,79 +66,99 @@ namespace PoS.Controllers
         [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> DeleteDiscountById([FromRoute] Guid discountId)
         {
-            await _discountLoyaltyService.DeleteDiscountByIdAsync(discountId);
+            await _discountService.DeleteDiscountByIdAsync(discountId);
 
             return NoContent();
         }
 
         [HttpPost]
         [Route("/DiscountLoyalty/LoyaltyProgram")]
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> CreateLoyaltyProgram([FromBody] LoyaltyProgramRequest loyaltyProgramRequest)
         {
-            throw new NotImplementedException();
+            var newLoyaltyProgram = await _loyaltyService.AddLoyaltyAsync(loyaltyProgramRequest);
+
+            return CreatedAtAction("GetDiscount", new { discountId = newLoyaltyProgram.Id }, newLoyaltyProgram);
         }
 
         [HttpGet]
         [Route("/DiscountLoyalty/LoyaltyPrograms")]
-        public async Task<IActionResult> GetLoyaltyPrograms([FromQuery] Guid? businessId, [FromQuery] string orderBy, [FromQuery] string sorting, [FromQuery] int? pageIndex, [FromQuery] int? pageSize)
+        [Authorize(Roles = "Admin, Manager, Staff")]
+        public async Task<IActionResult> GetLoyaltyPrograms([FromQuery] LoyaltyFilter loyaltyFilter)
         {
-            throw new NotImplementedException();
+            return Ok(await _loyaltyService.GetLoyaltysAsync(loyaltyFilter));
         }
 
         [HttpGet]
         [Route("/DiscountLoyalty/LoyaltyProgram/{loyaltyProgramId}")]
-        public async Task<IActionResult> GetLoyaltyProgramById([FromRoute][Required] Guid? loyaltyProgramId)
+        [ActionName("GetLoyaltyProgram")]
+        [Authorize(Roles = "Admin, Manager, Staff")]
+        public async Task<IActionResult> GetLoyaltyProgramById([FromRoute][Required] Guid loyaltyProgramId)
         {
-            throw new NotImplementedException();
+            return Ok(await _loyaltyService.GetLoyaltyByIdAsync(loyaltyProgramId));
         }
 
         [HttpPut]
         [Route("/DiscountLoyalty/LoyaltyProgram/{loyaltyProgramId}")]
-        public async Task<IActionResult> UpdateLoyaltyProgramById([FromRoute][Required] string loyaltyProgramId, [FromBody] LoyaltyProgramRequest loyaltyProgramRequest)
+        [Authorize(Roles = "Admin, Manager")]
+        public async Task<IActionResult> UpdateLoyaltyProgramById([FromRoute][Required] Guid loyaltyProgramId, [FromBody] LoyaltyProgramRequest loyaltyProgramRequest)
         {
-            throw new NotImplementedException();
+            return Ok(await _loyaltyService.UpdateLoyaltyByIdAsync(loyaltyProgramId, loyaltyProgramRequest));
         }
 
         [HttpDelete]
         [Route("/DiscountLoyalty/LoyaltyProgram/{loyaltyProgramId}")]
-        public async Task<IActionResult> DeleteLoyaltyProgramById([FromRoute][Required] Guid? loyaltyProgramId)
+        [Authorize(Roles = "Admin, Manager")]
+        public async Task<IActionResult> DeleteLoyaltyProgramById([FromRoute][Required] Guid loyaltyProgramId)
         {
-            throw new NotImplementedException();
+            await _loyaltyService.DeleteLoyaltyByIdAsync(loyaltyProgramId);
+
+            return NoContent();
         }
 
         [HttpPost]
         [Route("/DiscountLoyalty/Coupon")]
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> CreateCoupon([FromBody] CouponRequest couponRequest)
         {
-            throw new NotImplementedException();
+            var newCoupon = await _couponService.AddCouponAsync(couponRequest);
+
+            return CreatedAtAction("GetCoupon", new { couponId = newCoupon.Id }, newCoupon);
         }
 
         [HttpGet]
         [Route("/DiscountLoyalty/Coupons")]
-        public async Task<IActionResult> GetCoupons([FromQuery] Guid? businessId, [FromQuery] string validity, [FromQuery] DateTime? validUntil, [FromQuery] string orderBy, [FromQuery] string sorting, [FromQuery] int? pageIndex, [FromQuery] int? pageSize)
+        [Authorize(Roles = "Admin, Manager, Staff")]
+        public async Task<IActionResult> GetCoupons([FromQuery] CouponFilter couponFilter)
         {
-            throw new NotImplementedException();
+            return Ok(await _couponService.GetCouponsAsync(couponFilter));
         }
 
         [HttpGet]
         [Route("/DiscountLoyalty/Coupon/{couponId}")]
-        public async Task<IActionResult> GetCouponById([FromRoute][Required] Guid? couponId)
+        [ActionName("GetCoupon")]
+        [Authorize(Roles = "Admin, Manager, Staff")]
+        public async Task<IActionResult> GetCouponById([FromRoute][Required] Guid couponId)
         {
-            throw new NotImplementedException();
+            return Ok(await _couponService.GetCouponByIdAsync(couponId));
         }
 
         [HttpPut]
         [Route("/DiscountLoyalty/Coupon/{couponId}")]
-        public async Task<IActionResult> UpdateCouponById([FromRoute][Required] string couponId, [FromBody] CouponRequest couponRequest)
+        [Authorize(Roles = "Admin, Manager")]
+        public async Task<IActionResult> UpdateCouponById([FromRoute][Required] Guid couponId, [FromBody] CouponRequest couponRequest)
         {
-            throw new NotImplementedException();
+            return Ok(await _couponService.UpdateCouponByIdAsync(couponId, couponRequest));
         }
 
         [HttpDelete]
         [Route("/DiscountLoyalty/Coupon/{couponId}")]
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> DeleteCouponById([FromRoute][Required]Guid couponId)
-        { 
-            throw new NotImplementedException();
+        {
+            await _couponService.DeleteCouponByIdAsync(couponId);
+
+            return NoContent();
         }
     }
 }

@@ -1,5 +1,8 @@
-﻿namespace PoS.Core.Enums
+﻿using System.Text.Json.Serialization;
+
+namespace PoS.Core.Enums
 {
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum PaymentStatusEnum
     {
         Paid = 0,

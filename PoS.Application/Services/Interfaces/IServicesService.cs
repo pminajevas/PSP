@@ -1,7 +1,7 @@
 ﻿using PoS.Application.Filters;
 using PoS.Core.Entities;
 
-namespace PoS.Services.Services
+namespace PoS.Application.Services.Interfaces
 {
     public interface IServicesService
     {
