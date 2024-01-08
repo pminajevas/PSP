@@ -29,6 +29,9 @@ namespace PoS.Application.Mapper
 
             CreateMap<CouponRequest, Coupon>();
             CreateMap<Coupon, CouponResponse>();
+
+            CreateMap<TaxRequest, Tax>();
+            CreateMap<Tax, TaxResponse>();
         }
     }
 

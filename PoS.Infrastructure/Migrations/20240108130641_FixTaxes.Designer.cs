@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PoS.Infrastructure.Context;
 
@@ -11,9 +12,10 @@ using PoS.Infrastructure.Context;
 namespace PoS.Infrastructure.Migrations
 {
     [DbContext(typeof(PoSDBContext))]
-    partial class PoSDBContextModelSnapshot : ModelSnapshot
+    [Migration("20240108130641_FixTaxes")]
+    partial class FixTaxes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
