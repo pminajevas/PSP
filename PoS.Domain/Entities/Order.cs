@@ -8,28 +8,27 @@ namespace PoS.Core.Entities
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
-        public Guid? CustomerId { get; set; }
+        public Guid CustomerId { get; set; }
 
         [Required]
-        public Guid? BusinessId { get; set; }
+        public Guid BusinessId { get; set; }
 
         public Guid? StaffId { get; set; }
 
-        public Guid? TaxId { get; set; }
-
-        public double Tips { get; set; } = 0;
+        [Required]
+        public Guid TaxId { get; set; }
 
         [Required]
-        public OrderStatusEnum? Status { get; set; }
+        public OrderStatusEnum Status { get; set; } = OrderStatusEnum.Unpaid;
 
         [Required]
-        public DateTime? Date { get; set; }
+        public DateTime Date { get; set; }
 
         [Required]
-        public double? TotalAmount { get; set; }
+        public double TotalAmount { get; set; }
 
         public double? Tip { get; set; }
     }

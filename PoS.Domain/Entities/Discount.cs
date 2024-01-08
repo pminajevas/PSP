@@ -7,16 +7,17 @@ namespace PoS.Core.Entities
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
-        public string DiscountName { get; set; }
+        public string DiscountName { get; set; } = string.Empty;
 
         [Required]
         [Range(0, 1)]
-        public double? DiscountPercentage { get; set; }
+        public double DiscountPercentage { get; set; }
 
-        public DateTime? ValidUntil { get; set; }
+        [Required]
+        public DateTime ValidUntil { get; set; }
 
     }
 }

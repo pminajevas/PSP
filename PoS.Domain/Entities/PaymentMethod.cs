@@ -7,13 +7,13 @@ namespace PoS.Core.Entities
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
         [MaxLength(50)]
-        public string MethodName { get; set; }
+        public string MethodName { get; set; } = string.Empty;
 
         [MaxLength(500)]
-        public string MethodDescription { get; set; }
+        public string? MethodDescription { get; set; }
     }
 }

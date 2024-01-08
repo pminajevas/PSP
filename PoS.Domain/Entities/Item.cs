@@ -16,12 +16,12 @@ namespace PoS.Core.Entities
 
         [Required]
         [MaxLength(100)]
-        public string ItemName { get; set; }
+        public string ItemName { get; set; } = string.Empty;
 
         [MaxLength(500)]
-        public string ItemDescription { get; set; }
+        public string? ItemDescription { get; set; }
 
         [Required]
-        public double? Price { get; set; }
+        public double Price { get; set; }
     }
 }
