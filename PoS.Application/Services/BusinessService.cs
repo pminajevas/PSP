@@ -83,9 +83,16 @@ namespace PoS.Services.Services
             var businessToUpdate = _mapper.Map<Business>(updatedBusiness);
             businessToUpdate.Id = businessId;
 
-            if (await _businessRepository.Exists(x => x.BusinessName == updatedBusiness.BusinessName && x.Location == updatedBusiness.Location))
+            var oldBusiness = await _businessRepository.GetFirstAsync(x => x.Id == businessId) ??
+                throw new PoSException($"Business with id - {businessId} does not exist and can not be updated",
+                    System.Net.HttpStatusCode.BadRequest);
+
+            if (oldBusiness.BusinessName != businessToUpdate.BusinessName || oldBusiness.Location != businessToUpdate.Location)
             {
-                throw new PoSException($"Business with name - {updatedBusiness.BusinessName} and location - {updatedBusiness.Location} already exists", System.Net.HttpStatusCode.BadRequest);
+                if (await _businessRepository.Exists(x => x.BusinessName == updatedBusiness.BusinessName && x.Location == updatedBusiness.Location))
+                {
+                    throw new PoSException($"Business with name - {updatedBusiness.BusinessName} and location - {updatedBusiness.Location} already exists", System.Net.HttpStatusCode.BadRequest);
+                }
             }
 
             businessToUpdate =  await _businessRepository.UpdateAsync(businessToUpdate);

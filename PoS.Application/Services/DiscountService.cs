@@ -83,9 +83,16 @@ namespace PoS.Services.Services
             var discountUpdated = _mapper.Map<Discount>(discountUpdateRequest);
             discountUpdated.Id = discountId;
 
-            if (await _discountRepository.Exists(x => x.DiscountName == discountUpdateRequest.DiscountName))
+            var oldDiscount = await _discountRepository.GetFirstAsync(x => x.Id == discountId) ??
+                throw new PoSException($"Discount with id - {discountId} does not exist and can not be updated",
+                    System.Net.HttpStatusCode.BadRequest);
+
+            if (oldDiscount.DiscountName != discountUpdated.DiscountName)
             {
-                throw new PoSException($"Discount with name - {discountUpdateRequest.DiscountName} already exists", System.Net.HttpStatusCode.BadRequest);
+                if (await _discountRepository.Exists(x => x.DiscountName == discountUpdateRequest.DiscountName))
+                {
+                    throw new PoSException($"Discount with name - {discountUpdateRequest.DiscountName} already exists", System.Net.HttpStatusCode.BadRequest);
+                }
             }
 
             discountUpdated = await _discountRepository.UpdateAsync(discountUpdated);

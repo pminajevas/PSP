@@ -14,15 +14,36 @@ namespace PoS.Services.Services
     {
         private readonly IItemRepository _itemRepository;
         private readonly IMapper _mapper;
+        private readonly IBusinessRepository _businessRepository;
+        private readonly IDiscountRepository _discountRepository;
 
-        public ItemService(IItemRepository itemRepository, IMapper mapper)
+        public ItemService(
+            IItemRepository itemRepository,
+            IMapper mapper,
+            IBusinessRepository businessRepository,
+            IDiscountRepository discountRepository)
         {
             _itemRepository = itemRepository;
             _mapper = mapper;
+            _businessRepository = businessRepository;
+            _discountRepository = discountRepository;
         }
 
         public async Task<Item> CreateItemAsync(Item item)
         {
+            if (!await _businessRepository.Exists(x => x.Id == item.BusinessId))
+            {
+                throw new PoSException($"Business with id - {item.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            if (item.DiscountId != null)
+            {
+                if (!await _discountRepository.Exists(x => x.Id == item.DiscountId))
+                {
+                    throw new PoSException($"Discount with id - {item.DiscountId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+
             if (await _itemRepository.Exists(x => x.ItemName == item.ItemName && x.BusinessId == item.BusinessId))
             {
                 throw new PoSException($"Item with name - {item.ItemName} and business id - {item.BusinessId} already exists",
@@ -97,11 +118,26 @@ namespace PoS.Services.Services
         {
             itemUpdate.Id = itemId;
 
-            if (await _itemRepository.Exists(x => x.ItemName == itemUpdate.ItemName && x.BusinessId == itemUpdate.BusinessId))
+            if (itemUpdate.DiscountId != null)
             {
-                throw new PoSException($"Item with name - {itemUpdate.ItemName} and business id - {itemUpdate.BusinessId} already exists",
-                    System.Net.HttpStatusCode.BadRequest);
+                if (!await _discountRepository.Exists(x => x.Id == itemUpdate.DiscountId))
+                {
+                    throw new PoSException($"Discount with id - {itemUpdate.DiscountId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
             }
+
+            var oldItem = await _itemRepository.GetFirstAsync(x => x.Id == itemId) ??
+                throw new PoSException($"Item with id - {itemId} does not exist and can not be updated",
+                    System.Net.HttpStatusCode.BadRequest);
+
+            if (oldItem.ItemName != itemUpdate.ItemName || oldItem.BusinessId != itemUpdate.BusinessId)
+            {
+                if (await _itemRepository.Exists(x => x.ItemName == itemUpdate.ItemName && x.BusinessId == itemUpdate.BusinessId))
+                {
+                    throw new PoSException($"Item with name - {itemUpdate.ItemName} and business id - {itemUpdate.BusinessId} already exists",
+                        System.Net.HttpStatusCode.BadRequest);
+                }
+            }    
 
             itemUpdate = await _itemRepository.UpdateAsync(itemUpdate);
 

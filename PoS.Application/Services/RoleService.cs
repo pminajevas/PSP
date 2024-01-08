@@ -61,9 +61,16 @@ namespace PoS.Application.Services
             var roleToUpdate = _mapper.Map<Role>(updateRequest);
             roleToUpdate.Id = id;
 
-            if (await _roleRepository.Exists(x => x.RoleName == roleToUpdate.RoleName))
+            var oldRole = await _roleRepository.GetFirstAsync(x => x.Id == id) ??
+                throw new PoSException($"Role with id - {id} does not exist and can not be updated",
+                    System.Net.HttpStatusCode.BadRequest);
+
+            if (oldRole.RoleName != roleToUpdate.RoleName)
             {
-                throw new PoSException($"Role with name - {roleToUpdate.RoleName} already exists", System.Net.HttpStatusCode.BadRequest);
+                if (await _roleRepository.Exists(x => x.RoleName == roleToUpdate.RoleName))
+                {
+                    throw new PoSException($"Role with name - {roleToUpdate.RoleName} already exists", System.Net.HttpStatusCode.BadRequest);
+                }
             }
 
             roleToUpdate = await _roleRepository.UpdateAsync(roleToUpdate);

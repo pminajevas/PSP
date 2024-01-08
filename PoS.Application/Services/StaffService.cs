@@ -15,16 +15,19 @@ namespace PoS.Application.Services
         private readonly IStaffRepository _staffRepository;
         private readonly IMapper _mapper;
         private readonly IRoleRepository _roleRepository;
+        private readonly IBusinessRepository _businessRepository;
 
         public StaffService(
             IStaffRepository staffRepository,
             IMapper mapper,
-            IRoleRepository roleRepository
+            IRoleRepository roleRepository,
+            IBusinessRepository businessRepository
         )
         {
             _staffRepository = staffRepository;
             _mapper = mapper;
             _roleRepository = roleRepository;
+            _businessRepository = businessRepository;
         }
 
         public async Task<bool> DeleteStaffByIdAsync(Guid id)
@@ -56,11 +59,37 @@ namespace PoS.Application.Services
             var staffToUpdate = _mapper.Map<Staff>(staffRequest);
             staffToUpdate.Id = id;
 
-            if (await _staffRepository.Exists(x => x.LoginName == staffToUpdate.LoginName
-                && x.BusinessId == staffToUpdate.BusinessId))
+            var role = await _roleRepository.GetFirstAsync(x => x.Id == staffToUpdate.RoleId);
+
+            if (role is null)
             {
-                throw new PoSException($"Staff with login name - {staffToUpdate.LoginName} and business id - {staffToUpdate.BusinessId} already exists",
+                throw new PoSException($"Role with id - {staffToUpdate.RoleId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            if (role.RoleName != "Admin")
+            {
+                if (!await _businessRepository.Exists(x => x.Id == staffToUpdate.BusinessId))
+                {
+                    throw new PoSException($"Business with id - {staffToUpdate.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                staffToUpdate.BusinessId = Guid.Empty;
+            }
+
+            var oldStaff = await _staffRepository.GetFirstAsync(x => x.Id == id) ??
+                throw new PoSException($"Staff with id - {id} does not exist and can not be updated",
                     System.Net.HttpStatusCode.BadRequest);
+
+            if (oldStaff.LoginName != staffToUpdate.LoginName || oldStaff.BusinessId != staffToUpdate.BusinessId)
+            {
+                if (await _staffRepository.Exists(x => x.LoginName == staffToUpdate.LoginName
+                && x.BusinessId == staffToUpdate.BusinessId))
+                {
+                    throw new PoSException($"Staff with login name - {staffToUpdate.LoginName} and business id - {staffToUpdate.BusinessId} already exists",
+                        System.Net.HttpStatusCode.BadRequest);
+                }
             }
 
             staffToUpdate = await _staffRepository.UpdateAsync(staffToUpdate);
@@ -115,10 +144,30 @@ namespace PoS.Application.Services
         {
             var staff = _mapper.Map<Staff>(createRequest);
 
-            if (await _staffRepository.Exists(x => x.LoginName == staff.LoginName
-                && x.BusinessId == staff.BusinessId))
+            var role = await _roleRepository.GetFirstAsync(x => x.Id == staff.RoleId);
+
+            if (role is null)
             {
-                throw new PoSException($"Staff with login name - {staff.LoginName} and business id - {staff.BusinessId} already exists",
+                throw new PoSException($"Role with id - {staff.RoleId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            if (role.RoleName != "Admin")
+            {
+                if (!await _businessRepository.Exists(x => x.Id == staff.BusinessId))
+                {
+                    throw new PoSException($"Business with id - {staff.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+            else
+            {
+                staff.BusinessId = Guid.Empty;
+            }
+
+            if (await _staffRepository.Exists(x => x.LoginName == staff.LoginName
+                && x.BusinessId == staff.BusinessId
+                && x.Email == staff.Email))
+            {
+                throw new PoSException($"Staff with login name - {staff.LoginName}, business id - {staff.BusinessId} and email - {staff.Email} already exists",
                     System.Net.HttpStatusCode.BadRequest);
             }
 

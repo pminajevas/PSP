@@ -14,13 +14,22 @@ namespace PoS.Application.Services
     {
         private readonly ICustomerRepository _customerRepository;
         private readonly IMapper _mapper;
+        private readonly IBusinessRepository _businessRepository;
+        private readonly ILoyaltyProgramRepository _loyaltyProgramRepository;
+        private readonly IRoleRepository _roleRepository;
 
         public CustomerService(
             ICustomerRepository customerRepository,
-            IMapper mapper)
+            IMapper mapper,
+            IBusinessRepository businessRepository,
+            ILoyaltyProgramRepository loyaltyProgramRepository,
+            IRoleRepository roleRepository)
         {
             _customerRepository = customerRepository;
             _mapper = mapper;
+            _businessRepository = businessRepository;
+            _loyaltyProgramRepository = loyaltyProgramRepository;
+            _roleRepository = roleRepository;
         }
 
         public async Task<IEnumerable<CustomerResponse>> GetAllCustomersAsync(CustomerFilter customerFilter)
@@ -65,6 +74,28 @@ namespace PoS.Application.Services
         {
             var customer = _mapper.Map<Customer>(createRequest);
 
+            var role = await _roleRepository.GetFirstAsync(x => x.RoleName == "Customer");
+
+            if (role == null)
+            {
+                throw new PoSException($"Internal error. Customer role not created", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            customer.RoleId = role.Id;
+
+            if (!await _businessRepository.Exists(x => x.Id == customer.BusinessId))
+            {
+                throw new PoSException($"Business with id - {customer.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            if (customer.LoyaltyId != null)
+            {
+                if (!await _loyaltyProgramRepository.Exists(x => x.Id == customer.LoyaltyId))
+                {
+                    throw new PoSException($"Loyalty with id - {customer.LoyaltyId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+
             if (await _customerRepository.Exists(x => x.LoginName == customer.LoginName
                 && x.BusinessId == customer.BusinessId))
             {
@@ -84,11 +115,31 @@ namespace PoS.Application.Services
             var customerUpdated = _mapper.Map<Customer>(createRequest);
             customerUpdated.Id = id;
 
-            if (await _customerRepository.Exists(x => x.LoginName == customerUpdated.LoginName
-                && x.BusinessId == customerUpdated.BusinessId))
+            if (!await _businessRepository.Exists(x => x.Id == customerUpdated.BusinessId))
             {
-                throw new PoSException($"Customer with login name - {customerUpdated.LoginName} and business id - {customerUpdated.BusinessId} already exists",
+                throw new PoSException($"Business with id - {customerUpdated.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            if (customerUpdated.LoyaltyId != null)
+            {
+                if (!await _loyaltyProgramRepository.Exists(x => x.Id == customerUpdated.LoyaltyId))
+                {
+                    throw new PoSException($"Loyalty with id - {customerUpdated.LoyaltyId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
+            }
+
+            var oldCustomer = await _customerRepository.GetFirstAsync(x => x.Id == id) ??
+                throw new PoSException($"Customer with id - {id} does not exist and can not be updated",
                     System.Net.HttpStatusCode.BadRequest);
+
+            if (oldCustomer.LoginName != customerUpdated.LoginName || oldCustomer.BusinessId != customerUpdated.BusinessId)
+            {
+                if (await _customerRepository.Exists(x => x.LoginName == customerUpdated.LoginName
+                    && x.BusinessId == customerUpdated.BusinessId))
+                {
+                    throw new PoSException($"Customer with login name - {customerUpdated.LoginName} and business id - {customerUpdated.BusinessId} already exists",
+                        System.Net.HttpStatusCode.BadRequest);
+                }
             }
 
             customerUpdated = await _customerRepository.UpdateAsync(customerUpdated);
