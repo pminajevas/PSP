@@ -28,6 +28,13 @@ namespace PoS.Controllers
             return CreatedAtAction("GetOrder", new { orderId = newOrder.Id }, newOrder);
         }
 
+        [HttpPost]
+        [Route("/Orders/Receipt")]
+        public async Task<IActionResult> GenerateReceipt([FromBody] ReceiptRequest receiptRequest)
+        {
+            return Ok(await _orderService.GenerateReceipt(receiptRequest));
+        }
+
         [HttpGet]
         [Route("/Orders/Orders")]
         public async Task<IActionResult> GetOrders([FromQuery] OrderFilter orderFilter)

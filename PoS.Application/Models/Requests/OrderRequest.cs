@@ -5,8 +5,7 @@ namespace PoS.Application.Models.Requests
 {
     public class OrderRequest
     {
-        [Required]
-        public Guid CustomerId { get; set; }
+        public Guid? CustomerId { get; set; }
 
         [Required]
         public Guid BusinessId { get; set; }
@@ -16,6 +15,8 @@ namespace PoS.Application.Models.Requests
 
         [Required]
         public Guid TaxId { get; set; }
+
+        public Guid? DiscountId {  get; set; }
 
         [Required]
         public DateTime Date { get; set; }
