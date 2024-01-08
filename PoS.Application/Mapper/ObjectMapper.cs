@@ -38,6 +38,9 @@ namespace PoS.Application.Mapper
 
             CreateMap<OrderItemRequest, OrderItem>();
             CreateMap<OrderItem, OrderItemResponse>();
+
+            CreateMap<AppointmentRequest, Appointment>();
+            CreateMap<Appointment, AppointmentResponse>();
         }
     }
 
