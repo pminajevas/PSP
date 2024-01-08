@@ -6,6 +6,7 @@ using PoS.Application.Models.Requests;
 using PoS.Application.Models.Responses;
 using PoS.Application.Services.Interfaces;
 using PoS.Core.Entities;
+using PoS.Core.Exceptions;
 
 namespace PoS.Application.Services
 {
@@ -64,6 +65,13 @@ namespace PoS.Application.Services
         {
             var customer = _mapper.Map<Customer>(createRequest);
 
+            if (await _customerRepository.Exists(x => x.LoginName == customer.LoginName
+                && x.BusinessId == customer.BusinessId))
+            {
+                throw new PoSException($"Customer with login name - {customer.LoginName} and business id - {customer.BusinessId} already exists",
+                    System.Net.HttpStatusCode.BadRequest);
+            }
+
             customer.Password = BCrypt.Net.BCrypt.HashPassword(customer.Password);
 
             customer = await _customerRepository.InsertAsync(customer);
@@ -71,29 +79,45 @@ namespace PoS.Application.Services
             return _mapper.Map<CustomerResponse>(customer);
         }
 
-        public async Task<CustomerResponse?> UpdateCustomerAsync(Guid id, CustomerRequest createRequest)
+        public async Task<CustomerResponse> UpdateCustomerAsync(Guid id, CustomerRequest createRequest)
         {
             var customerUpdated = _mapper.Map<Customer>(createRequest);
             customerUpdated.Id = id;
 
-            customerUpdated = await _customerRepository.UpdateAsync(customerUpdated);
-
-            if (customerUpdated is not null)
+            if (await _customerRepository.Exists(x => x.LoginName == customerUpdated.LoginName
+                && x.BusinessId == customerUpdated.BusinessId))
             {
-                return _mapper.Map<CustomerResponse>(customerUpdated);
+                throw new PoSException($"Customer with login name - {customerUpdated.LoginName} and business id - {customerUpdated.BusinessId} already exists",
+                    System.Net.HttpStatusCode.BadRequest);
             }
 
-            return null;
+            customerUpdated = await _customerRepository.UpdateAsync(customerUpdated);
+
+            return _mapper.Map<CustomerResponse>(customerUpdated);
         }
 
         public async Task<bool> DeleteCustomerAsync(Guid id)
         {
-            return await _customerRepository.DeleteAsync(id);
+            if (await _customerRepository.DeleteAsync(id))
+            {
+                return true;
+            }
+            else
+            {
+                throw new PoSException($"Customer with id - {id} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
         }
 
         public async Task<CustomerResponse> GetCustomerByIdAsync(Guid id)
         {
-            return _mapper.Map<CustomerResponse>(await _customerRepository.GetByIdAsync(id));
+            var customer = await _customerRepository.GetByIdAsync(id);
+
+            if (customer is null)
+            {
+                throw new PoSException($"Customer with id - {id} does not exist", System.Net.HttpStatusCode.NotFound);
+            }
+
+            return _mapper.Map<CustomerResponse>(customer);
         }
     }
 }

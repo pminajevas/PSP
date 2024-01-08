@@ -10,7 +10,7 @@ namespace PoS.Application.Services.Interfaces
 
         public Task<CustomerResponse> AddCustomerAsync(CustomerRequest createRequest);
 
-        public Task<CustomerResponse?> UpdateCustomerAsync(Guid id, CustomerRequest createRequest);
+        public Task<CustomerResponse> UpdateCustomerAsync(Guid id, CustomerRequest createRequest);
 
         public Task<bool> DeleteCustomerAsync(Guid id);
 

@@ -6,6 +6,7 @@ using PoS.Application.Models.Requests;
 using PoS.Application.Models.Responses;
 using PoS.Application.Services.Interfaces;
 using PoS.Core.Entities;
+using PoS.Core.Exceptions;
 
 namespace PoS.Services.Services
 {
@@ -55,12 +56,24 @@ namespace PoS.Services.Services
 
         public async Task<BusinessResponse?> GetBusinessByIdAsync(Guid id)
         {
-            return _mapper.Map<BusinessResponse>(await _businessRepository.GetByIdAsync(id));
+            var business = await _businessRepository.GetByIdAsync(id);
+
+            if (business is null)
+            {
+                throw new PoSException($"Business with id - {id} does not exist", System.Net.HttpStatusCode.NotFound);
+            }
+
+            return _mapper.Map<BusinessResponse>(business);
         }
 
         public async Task<BusinessResponse> AddBusinessAsync(BusinessRequest businessRequest)
         {
             var business = _mapper.Map<Business>(businessRequest);
+
+            if (await _businessRepository.Exists(x => x.BusinessName == businessRequest.BusinessName && x.Location == businessRequest.Location))
+            {
+                throw new PoSException($"Business with name - {businessRequest.BusinessName} and location - {businessRequest.Location} already exists", System.Net.HttpStatusCode.BadRequest);
+            }
 
             return _mapper.Map<BusinessResponse>(await _businessRepository.InsertAsync(business));
         }
@@ -70,6 +83,11 @@ namespace PoS.Services.Services
             var businessToUpdate = _mapper.Map<Business>(updatedBusiness);
             businessToUpdate.Id = businessId;
 
+            if (await _businessRepository.Exists(x => x.BusinessName == updatedBusiness.BusinessName && x.Location == updatedBusiness.Location))
+            {
+                throw new PoSException($"Business with name - {updatedBusiness.BusinessName} and location - {updatedBusiness.Location} already exists", System.Net.HttpStatusCode.BadRequest);
+            }
+
             businessToUpdate =  await _businessRepository.UpdateAsync(businessToUpdate);
 
             return _mapper.Map<BusinessResponse>(businessToUpdate);
@@ -77,7 +95,14 @@ namespace PoS.Services.Services
 
         public async Task<bool> DeleteBusinessAsync(Guid id)
         {
-            return await _businessRepository.DeleteAsync(id);
+            if (await _businessRepository.DeleteAsync(id))
+            {
+                return true;
+            }
+            else
+            {
+                throw new PoSException($"Business with id - {id} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
         }
     }
 }

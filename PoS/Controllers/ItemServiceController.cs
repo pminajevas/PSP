@@ -3,14 +3,16 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using PoS.Services.Services;
 using PoS.Core.Entities;
+using Microsoft.AspNetCore.Authorization;
+using PoS.Application.Filters;
 
 namespace PoS.Controllers
 {
     [ApiController]
     public class ItemServiceController : ControllerBase
     {
-        IItemService _itemService;
-        IServicesService _servicesService;
+        private readonly IItemService _itemService;
+        private readonly IServicesService _servicesService;
 
         public ItemServiceController(IItemService itemService, IServicesService servicesService)
         {
@@ -20,136 +22,93 @@ namespace PoS.Controllers
 
         [HttpDelete]
         [Route("/ItemService/Item/{itemId}")]
+        [Authorize(Roles = "Admin,Manager,Staff")]
         public async Task<IActionResult> DeleteItemAsync([FromRoute][Required] Guid itemId)
         {
-            bool isDeleted = await _itemService.DeleteItemAsync(itemId);
-            if(isDeleted)
-            {
-                return Ok();
-            }
+            await _itemService.DeleteItemAsync(itemId);
 
-            return Problem();
+            return NoContent();
         }
 
         [HttpGet]
         [Route("/ItemService/Item/{itemId}")]
+        [ActionName("GetItem")]
+        [Authorize(Roles = "Admin,Manager,Staff,Customer")]
         public async Task<IActionResult> GetItemAsync([FromRoute][Required] Guid itemId)
         {
-            var result = await _itemService.GetItemByIdAsync(itemId);
-
-            if(result != null)
-            {
-                return Ok(result);
-            }
-
-            return NoContent();
+            return Ok(await _itemService.GetItemByIdAsync(itemId));
         }
 
         [HttpPut]
         [Route("/ItemService/Item/{itemId}")]
+        [Authorize(Roles = "Admin,Manager,Staff")]
         public async Task<IActionResult> UpdateItemAsync([FromRoute][Required]Guid itemId, [FromBody] Item body)
         {
-            var item = await _itemService.UpdateItemAsync(itemId, body);
-            if(item != null)
-            {
-                return Ok(item);
-            }
-
-            return NoContent();
+            return Ok(await _itemService.UpdateItemAsync(itemId, body));
         }
 
         [HttpPost]
         [Route("/ItemService/Item")]
+        [Authorize(Roles = "Admin,Manager,Staff")]
         public async Task<IActionResult> CreateItemAsync([FromBody] Item item)
         {
             var newItem = await _itemService.CreateItemAsync(item);
 
-            if(newItem != null)
-            {
-                return Ok(newItem);
-            }
-
-            return Problem();
+            return CreatedAtAction("GetItem", new { itemId = newItem.Id }, newItem);
         }
 
         [HttpGet]
         [Route("/ItemService/Items")]
-        public async Task<IActionResult> GetItemsAsync()
+        [Authorize(Roles = "Admin,Manager,Staff,Customer")]
+        public async Task<IActionResult> GetItemsAsync([FromQuery] ItemsFilter itemsFilter)
         {
-            var items = await _itemService.GetItemsAsync();
-
-            if(items.Any())
-            {
-                return Ok(items);
-            }
-
-            return NoContent();
+            return Ok(await _itemService.GetItemsAsync(itemsFilter));
         }
 
         [HttpPost]
         [Route("/ItemService/Service")]
+        [Authorize(Roles = "Admin,Manager,Staff")]
         public async Task<IActionResult> CreateServiceAsync([FromBody] Service service)
         {
             var newService = await _servicesService.CreateServiceAsync(service);
-            if(newService != null)
-            {
-                return Ok(newService);
-            }
 
-            return Problem();
+            return CreatedAtAction("GetService", new { serviceId = newService.Id }, newService);
         }
 
         [HttpDelete]
         [Route("/ItemService/Service/{serviceId}")]
+        [Authorize(Roles = "Admin,Manager,Staff")]
         public async Task<IActionResult> DeleteServiceAsync([FromRoute][Required] Guid serviceId)
         {
-            bool isDeleted = await _servicesService.DeleteServiceAsync(serviceId);
-            if(isDeleted)
-            {
-                return Ok();
-            }
+            await _servicesService.DeleteServiceAsync(serviceId);
 
-            return Problem();
+            return NoContent();
 
         }
 
         [HttpGet]
         [Route("/ItemService/Service/{serviceId}")]
+        [ActionName("GetService")]
+        [Authorize(Roles = "Admin,Manager,Staff,Customer")]
         public async Task<IActionResult> GetServiceAsync([FromRoute][Required] Guid serviceId)
         {
-            var service = await _servicesService.GetServiceByIdAsync(serviceId);
-            if(service != null)
-            {
-                return Ok(service);
-            }
-
-            return NoContent();
+            return Ok(await _servicesService.GetServiceByIdAsync(serviceId));
         }
 
         [HttpPut]
         [Route("/ItemService/Service/{serviceId}")]
+        [Authorize(Roles = "Admin,Manager,Staff")]
         public async Task<IActionResult> UpdateServiceAsync([FromRoute][Required] Guid serviceId, [FromBody] Service body)
         {
-            var service = await _servicesService.UpdateServiceAsync(serviceId, body);
-            if(service != null)
-            {
-                return Ok(service);
-            }
-
-            return NoContent();
+            return Ok(await _servicesService.UpdateServiceAsync(serviceId, body));
         }
 
         [HttpGet]
         [Route("/ItemService/Services")]
-        public async Task<IActionResult> GetServicesAsync()
+        [Authorize(Roles = "Admin,Manager,Staff,Customer")]
+        public async Task<IActionResult> GetServicesAsync([FromQuery] ServicesFilter servicesFilter)
         {
-            var services = await _servicesService.GetServicesAsync();
-            if(services.Any())
-            {
-                return Ok(services);
-            }
-
-            return NoContent();
+            return Ok(await _servicesService.GetServicesAsync(servicesFilter));
         }
     }
 }

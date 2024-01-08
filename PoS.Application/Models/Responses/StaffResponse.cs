@@ -5,8 +5,6 @@ namespace PoS.Application.Models.Responses
 
         public Guid Id { get; set; }
 
-        public Guid UserId { get; set; }
-
         public Guid? BusinessId { get; set; }
 
         public string LoginName { get; set; }
@@ -22,8 +20,5 @@ namespace PoS.Application.Models.Responses
         public DateTime? HireDate { get; set; }
 
         public string? RoleName { get; set; }
-
-        public string? JwtToken { get; set; }
-
     }
 }

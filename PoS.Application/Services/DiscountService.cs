@@ -2,10 +2,10 @@
 using PoS.Application.Abstractions.Repositories;
 using PoS.Application.Models.Responses;
 using PoS.Application.Models.Requests;
-using PoS.Application.Mapper;
 using PoS.Core.Entities;
 using PoS.Application.Filters;
 using AutoMapper;
+using PoS.Core.Exceptions;
 
 namespace PoS.Services.Services
 {
@@ -24,9 +24,12 @@ namespace PoS.Services.Services
         {
             var discount = _mapper.Map<Discount>(discountRequest);
 
-            discount = await _discountRepository.InsertAsync(discount);
+            if (await _discountRepository.Exists(x => x.DiscountName == discountRequest.DiscountName)) 
+            {
+                throw new PoSException($"Discount with name - {discountRequest.DiscountName} already exists", System.Net.HttpStatusCode.BadRequest);
+            }
 
-            return _mapper.Map<DiscountResponse>(discount);
+            return _mapper.Map<DiscountResponse>(await _discountRepository.InsertAsync(discount));
         }
 
         public async Task<List<DiscountResponse>> GetDiscountsAsync(DiscountFilter filter)
@@ -66,12 +69,12 @@ namespace PoS.Services.Services
         {
             var discount = await _discountRepository.GetByIdAsync(discountId);
 
-            if (discount is not null)
+            if (discount is null)
             {
-                return _mapper.Map<DiscountResponse>(discount); 
+                throw new PoSException($"Discount with id - {discountId} does not exist", System.Net.HttpStatusCode.NotFound);
             }
 
-            return null;
+            return _mapper.Map<DiscountResponse>(discount);
         }
 
         public async Task<DiscountResponse?> UpdateDiscountByIdAsync(Guid discountId, DiscountRequest discountUpdateRequest)
@@ -79,19 +82,26 @@ namespace PoS.Services.Services
             var discountUpdated = _mapper.Map<Discount>(discountUpdateRequest);
             discountUpdated.Id = discountId;
 
-            discountUpdated = await _discountRepository.UpdateAsync(discountUpdated);
-
-            if (discountUpdated is not null)
+            if (await _discountRepository.Exists(x => x.DiscountName == discountUpdateRequest.DiscountName))
             {
-                return _mapper.Map<DiscountResponse>(discountUpdated);
+                throw new PoSException($"Discount with name - {discountUpdateRequest.DiscountName} already exists", System.Net.HttpStatusCode.BadRequest);
             }
 
-            return null;
+            discountUpdated = await _discountRepository.UpdateAsync(discountUpdated);
+
+            return _mapper.Map<DiscountResponse>(discountUpdated);
         }
 
         public async Task<bool> DeleteDiscountByIdAsync(Guid discountId)
         {
-            return await _discountRepository.DeleteAsync(discountId);
+            if (await _discountRepository.DeleteAsync(discountId))
+            {
+                return true;
+            }
+            else
+            {
+                throw new PoSException($"Discount with id - {discountId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
         }
     }
 }

@@ -5,6 +5,7 @@ using PoS.Application.Models.Enums;
 using PoS.Application.Models.Requests;
 using PoS.Application.Models.Responses;
 using PoS.Application.Services.Interfaces;
+using PoS.Core.Exceptions;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Authentication;
 using System.Security.Claims;
@@ -46,18 +47,22 @@ namespace PoS.Application.Services
                         {
                             if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, staff.Password))
                             {
-                                throw new AuthenticationException("Invalid password");
+                                throw new PoSException($"Invalid login name or password", System.Net.HttpStatusCode.Unauthorized);
                             }
 
                             var role = await _roleRepository.GetFirstAsync(x => x.Id == staff.RoleId);
 
                             if (role is null)
                             {
-                                throw new AuthenticationException("No role assigned to user");
+                                throw new PoSException($"Internal fault. No role assigned to user", System.Net.HttpStatusCode.InternalServerError);
                             }
 
                             roleName = role.RoleName;
                             businessId = staff.BusinessId;
+                        }
+                        else
+                        {
+                            throw new PoSException($"Invalid login name or password", System.Net.HttpStatusCode.Unauthorized);
                         }
 
                         break;
@@ -70,34 +75,39 @@ namespace PoS.Application.Services
                         {
                             if (!BCrypt.Net.BCrypt.Verify(loginRequest.Password, customer.Password))
                             {
-                                throw new AuthenticationException("Invalid password");
+                                throw new PoSException($"Invalid login name or password", System.Net.HttpStatusCode.Unauthorized);
                             }
 
                             var role = await _roleRepository.GetFirstAsync(x => x.Id == customer.RoleId);
 
                             if (role is null)
                             {
-                                throw new AuthenticationException("No role assigned to user");
+                                throw new PoSException($"Internal fault. No role assigned to user. Code 00", System.Net.HttpStatusCode.InternalServerError);
                             }
 
                             roleName = role.RoleName;
                             businessId = customer.BusinessId;
                         }
+                        else
+                        {
+                            throw new PoSException($"Invalid login name or password", System.Net.HttpStatusCode.Unauthorized);
+                        }
 
                         break;
                     }
                 default:
-                    throw new Exception("Invalid login type");
+                    throw new PoSException($"Internal fault. Code 01", System.Net.HttpStatusCode.InternalServerError);
             }
 
             if (roleName is not null && businessId is not null)
             {
-                var jwtToken = CreateToken(loginRequest.LoginName, roleName, businessId.ToString() ?? throw new ArgumentException("Could not convert bussines id"));
+                var jwtToken = CreateToken(loginRequest.LoginName, roleName, businessId.ToString()
+                    ?? throw new PoSException($"Internal fault. Code 02.", System.Net.HttpStatusCode.InternalServerError));
 
                 return new LoginResponse { Token = jwtToken };
             }
 
-            throw new Exception("Could not successfully check identity");
+            throw new PoSException($"Internal fault. Code 03.", System.Net.HttpStatusCode.InternalServerError);
         }
 
         private string CreateToken(string loginName, string roleName, string businessId)

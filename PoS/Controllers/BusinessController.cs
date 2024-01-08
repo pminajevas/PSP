@@ -6,14 +6,15 @@ using PoS.Services.Services;
 using PoS.Application.Services.Interfaces;
 using PoS.Application.Models.Requests;
 using PoS.Application.Filters;
+using PoS.Core.Exceptions;
 
 namespace PoS.Controllers
 {
     [ApiController]
     public class BusinessController : ControllerBase
     {
-        private IBusinessService _businessService;
-        private Application.Services.Interfaces.IAuthorizationService _authorizationService;
+        private readonly IBusinessService _businessService;
+        private readonly Application.Services.Interfaces.IAuthorizationService _authorizationService;
 
         public BusinessController(
             IBusinessService businessService,
@@ -29,12 +30,9 @@ namespace PoS.Controllers
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteBusinessAsync([FromRoute][Required]Guid businessId)
         {
-            if (await _businessService.DeleteBusinessAsync(businessId))
-            {
-                return Ok();
-            }
+            await _businessService.DeleteBusinessAsync(businessId);
 
-            return Problem();
+            return NoContent();
         }
 
         [HttpGet]
@@ -45,17 +43,12 @@ namespace PoS.Controllers
         {
             if (await _authorizationService.IsUserAdminOrBusinessManager(User))
             {
-                var result = await _businessService.GetBusinessByIdAsync(businessId);
-
-                if (result != null)
-                {
-                    return Ok(result);
-                }
-
-                return NotFound();
+                return Ok(await _businessService.GetBusinessByIdAsync(businessId));
             }
-
-            return Forbid();
+            else
+            {
+                throw new PoSException("Insufficient permissions for the action", System.Net.HttpStatusCode.Unauthorized);
+            }
         }
 
         [HttpPut]
@@ -65,19 +58,14 @@ namespace PoS.Controllers
         {
             if (await _authorizationService.IsUserAdminOrBusinessManager(User))
             {
-                var updatedBusiness = await _businessService.UpdateBusinessAsync(business, businessId);
-
-                if (updatedBusiness != null)
-                {
-                    return Ok(updatedBusiness);
-                }
-
-                return NotFound();
+                return Ok(await _businessService.UpdateBusinessAsync(business, businessId));
+            }
+            else
+            {
+                throw new PoSException("Insufficient permissions for the action", System.Net.HttpStatusCode.Unauthorized);
             }
 
-            return Forbid();
-
-    }
+        }
 
         [HttpPost]
         [Route("/Business/Business")]
@@ -98,8 +86,10 @@ namespace PoS.Controllers
             {
                 return Ok(await _businessService.GetAllBusinessesAsync(businessFilter));
             }
-
-            return Forbid();
+            else
+            {
+                throw new PoSException("Insufficient permissions for the action", System.Net.HttpStatusCode.Unauthorized);
+            }
         }
     }
 }

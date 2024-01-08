@@ -7,11 +7,10 @@ namespace PoS.Core.Entities
     {
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Key]
-        public Guid? Id { get; set; }
+        public Guid Id { get; set; }
 
         [Required]
-        public Guid? BusinessId { get; set; }
-
+        public Guid BusinessId { get; set; }
 
         public Guid? DiscountId { get; set; }
 
