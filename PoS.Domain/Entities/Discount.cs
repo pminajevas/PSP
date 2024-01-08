@@ -18,6 +18,5 @@ namespace PoS.Core.Entities
 
         [Required]
         public DateTime ValidUntil { get; set; }
-
     }
 }

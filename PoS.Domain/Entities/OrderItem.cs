@@ -20,6 +20,9 @@ namespace PoS.Core.Entities
         public double UnitPrice { get; set; }
 
         [Required]
+        public double UnitPriceDiscount { get; set; }
+
+        [Required]
         public OrderItemTypeEnum Type { get; set; }
 
         [Required]
