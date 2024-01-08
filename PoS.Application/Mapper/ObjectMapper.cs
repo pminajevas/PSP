@@ -32,6 +32,12 @@ namespace PoS.Application.Mapper
 
             CreateMap<TaxRequest, Tax>();
             CreateMap<Tax, TaxResponse>();
+
+            CreateMap<OrderRequest, Order>();
+            CreateMap<Order, OrderResponse>();
+
+            CreateMap<OrderItemRequest, OrderItem>();
+            CreateMap<OrderItem, OrderItemResponse>();
         }
     }
 

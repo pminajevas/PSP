@@ -16,7 +16,8 @@ namespace PoS.Core.Entities
         [Required]
         public Guid BusinessId { get; set; }
 
-        public Guid? StaffId { get; set; }
+        [Required]
+        public Guid StaffId { get; set; }
 
         [Required]
         public Guid TaxId { get; set; }
