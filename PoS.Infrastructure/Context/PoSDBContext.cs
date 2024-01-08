@@ -3,10 +3,11 @@ using PoS.Core.Entities;
 
 namespace PoS.Infrastructure.Context
 {
-    public class PoSDBContext : DbContext
+    public class PoSDBContext : DbContext, IPoSDBContext
     {
         public PoSDBContext(DbContextOptions<PoSDBContext> options) : base(options) { }
 
+        public DbContext Instance => this;
         public DbSet<Order> Orders { get; set; } = default!;
         public DbSet<Coupon> Coupons { get; set; } = default!;
         public DbSet<OrderItem> OrderItems { get; set; } = default!;
@@ -44,8 +45,6 @@ namespace PoS.Infrastructure.Context
             modelBuilder.Entity<Tax>()
                 .Property(e => e.Category)
                 .HasConversion<int>();
-            modelBuilder.Entity<Customer>()
-                .HasKey(c => new { c.Id, c.BusinessId });
 
             Seed(modelBuilder);
         }
@@ -53,10 +52,10 @@ namespace PoS.Infrastructure.Context
         private void Seed(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Role>().HasData(
-                new Role { Id = Guid.NewGuid(), RoleName = "Admin", Description = "Administrator has access to all operations" },
-                new Role { Id = Guid.NewGuid(), RoleName = "Manager", Description = "Manager has access to all operations in the business"},
-                new Role { Id = Guid.NewGuid(), RoleName = "Staff", Description = "Staff has access to most common operations in the business" },
-                new Role { Id = Guid.NewGuid(), RoleName = "Customer", Description = "Customer has access to operations related to customer self-service" }
+                new Role { Id = Guid.Parse("E039F4E6-D3BF-4318-82FD-60E95D88F40F"), RoleName = "Admin", Description = "Administrator has access to all operations" },
+                new Role { Id = Guid.Parse("745C6724-F255-4C2E-9976-BE210824B534"), RoleName = "Manager", Description = "Manager has access to all operations in the business"},
+                new Role { Id = Guid.Parse("92E68FF5-37FE-4598-91B0-448F4C3D44C3"), RoleName = "Staff", Description = "Staff has access to most common operations in the business" },
+                new Role { Id = Guid.Parse("37E76957-C0E9-41E1-B7FC-26ABE102A6E0"), RoleName = "Customer", Description = "Customer has access to operations related to customer self-service" }
             );
         }
     }

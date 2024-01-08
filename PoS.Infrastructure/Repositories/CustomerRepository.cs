@@ -7,6 +7,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class CustomerRepository : GenericRepository<Customer>, ICustomerRepository
     {
-        public CustomerRepository(PoSDBContext context) : base(context) { }
+        public CustomerRepository(IPoSDBContext context) : base(context) { }
     }
 }

@@ -6,6 +6,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class PaymentRepository : GenericRepository<Payment>, IPaymentRepository
     {
-        public PaymentRepository(PoSDBContext context) : base(context) { }
+        public PaymentRepository(IPoSDBContext context) : base(context) { }
     }
 }

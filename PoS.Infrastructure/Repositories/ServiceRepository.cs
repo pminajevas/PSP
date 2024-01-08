@@ -6,6 +6,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class ServiceRepository : GenericRepository<Service>, IServiceRepository
     {
-        public ServiceRepository(PoSDBContext context) : base(context) { }
+        public ServiceRepository(IPoSDBContext context) : base(context) { }
     }
 }

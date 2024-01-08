@@ -10,8 +10,24 @@ using PoS.Application.Services;
 using PoS.Application.Abstractions.Repositories;
 using PoS.Infrastructure.Repositories;
 using PoS.Infrastructure.Context;
+using System;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddDbContext<PoSDBContext>(options =>
+{
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new Exception("Invalid connection app settings"),
+        sqlServerOptionsAction: sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(10),
+                errorNumbersToAdd: null
+            );
+            sqlOptions.MigrationsAssembly("PoS.Infrastructure");
+        });
+}, ServiceLifetime.Scoped);
+builder.Services.AddScoped<IPoSDBContext, PoSDBContext>();
 
 // Add logging
 
@@ -82,19 +98,6 @@ builder.Services.AddSwaggerGen(option =>
             new string[]{}
         }
     });
-});
-builder.Services.AddDbContext<PoSDBContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new Exception("Invalid connection app settings"),
-        sqlServerOptionsAction: sqlOptions =>
-        {
-            sqlOptions.EnableRetryOnFailure(
-                maxRetryCount: 3,
-                maxRetryDelay: TimeSpan.FromSeconds(10),
-                errorNumbersToAdd: null
-            );
-            sqlOptions.MigrationsAssembly("PoS.Infrastructure");
-        });
 });
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

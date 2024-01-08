@@ -6,6 +6,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class RoleRepository : GenericRepository<Role>, IRoleRepository
     {
-        public RoleRepository(PoSDBContext context) : base(context) { }
+        public RoleRepository(IPoSDBContext context) : base(context) { }
     }
 }

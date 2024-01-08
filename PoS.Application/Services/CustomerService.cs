@@ -115,6 +115,15 @@ namespace PoS.Application.Services
             var customerUpdated = _mapper.Map<Customer>(createRequest);
             customerUpdated.Id = id;
 
+            var role = await _roleRepository.GetFirstAsync(x => x.RoleName == "Customer");
+
+            if (role == null)
+            {
+                throw new PoSException($"Internal error. Customer role not created", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            customerUpdated.RoleId = role.Id;
+
             if (!await _businessRepository.Exists(x => x.Id == customerUpdated.BusinessId))
             {
                 throw new PoSException($"Business with id - {customerUpdated.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
@@ -141,6 +150,8 @@ namespace PoS.Application.Services
                         System.Net.HttpStatusCode.BadRequest);
                 }
             }
+
+            customerUpdated.Password = BCrypt.Net.BCrypt.HashPassword(customerUpdated.Password);
 
             customerUpdated = await _customerRepository.UpdateAsync(customerUpdated);
 

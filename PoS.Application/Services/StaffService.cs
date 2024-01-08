@@ -92,6 +92,8 @@ namespace PoS.Application.Services
                 }
             }
 
+            staffToUpdate.Password = BCrypt.Net.BCrypt.HashPassword(staffToUpdate.Password);
+
             staffToUpdate = await _staffRepository.UpdateAsync(staffToUpdate);
 
             return _mapper.Map<StaffResponse>(staffToUpdate);

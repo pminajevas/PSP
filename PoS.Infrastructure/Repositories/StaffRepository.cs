@@ -6,6 +6,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class StaffRepository : GenericRepository<Staff>, IStaffRepository
     {
-        public StaffRepository(PoSDBContext context) : base(context) { }
+        public StaffRepository(IPoSDBContext context) : base(context) { }
     }
 }
