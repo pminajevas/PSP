@@ -6,6 +6,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class OrderItemRepository : GenericRepository<OrderItem>, IOrderItemRepository
     {
-        public OrderItemRepository(PoSDBContext context) : base(context) { }
+        public OrderItemRepository(IPoSDBContext context) : base(context) { }
     }
 }

@@ -13,17 +13,27 @@ namespace PoS.Application.Services
     public class LoyaltyService : ILoyaltyService
     {
         private readonly ILoyaltyProgramRepository _loyaltyProgramRepository;
+        private readonly IBusinessRepository _businessRepository;
         private readonly IMapper _mapper;
 
-        public LoyaltyService(ILoyaltyProgramRepository loyaltyProgramRepository, IMapper mapper)
+        public LoyaltyService(
+            ILoyaltyProgramRepository loyaltyProgramRepository,
+            IMapper mapper,
+            IBusinessRepository businessRepository)
         {
             _loyaltyProgramRepository = loyaltyProgramRepository;
             _mapper = mapper;
+            _businessRepository = businessRepository;
         }
 
         public async Task<LoyaltyProgramResponse> AddLoyaltyAsync(LoyaltyProgramRequest loyaltyRequest)
         {
             var loyalty = _mapper.Map<LoyaltyProgram>(loyaltyRequest);
+
+            if (!await _businessRepository.Exists(x => x.Id == loyalty.BusinessId))
+            {
+                throw new PoSException($"Business with id - {loyalty.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
 
             return _mapper.Map<LoyaltyProgramResponse>(await _loyaltyProgramRepository.InsertAsync(loyalty));
         }
@@ -89,6 +99,11 @@ namespace PoS.Application.Services
         {
             var loyaltyUpdated = _mapper.Map<LoyaltyProgram>(loyaltyUpdateRequest);
             loyaltyUpdated.Id = loyaltyId;
+
+            if (!await _businessRepository.Exists(x => x.Id == loyaltyUpdateRequest.BusinessId))
+            {
+                throw new PoSException($"Business with id - {loyaltyUpdateRequest.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
 
             loyaltyUpdated = await _loyaltyProgramRepository.UpdateAsync(loyaltyUpdated);
 

@@ -6,6 +6,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class LoyaltyProgramRepository : GenericRepository<LoyaltyProgram>, ILoyaltyProgramRepository
     {
-        public LoyaltyProgramRepository(PoSDBContext context) : base(context) { }
+        public LoyaltyProgramRepository(IPoSDBContext context) : base(context) { }
     }
 }

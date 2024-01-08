@@ -6,6 +6,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class CouponRepository : GenericRepository<Coupon>, ICouponRepository
     {
-        public CouponRepository(PoSDBContext context) : base(context) { }
+        public CouponRepository(IPoSDBContext context) : base(context) { }
     }
 }

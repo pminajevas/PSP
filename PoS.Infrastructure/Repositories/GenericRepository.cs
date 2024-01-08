@@ -1,25 +1,28 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PoS.Application.Abstractions.Repositories;
+using PoS.Core.Exceptions;
 using PoS.Infrastructure.Context;
+using System.Diagnostics.Metrics;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace PoS.Infrastructure.Repositories
 {
     public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEntity : class
     {
-        protected readonly PoSDBContext Context;
+        protected readonly IPoSDBContext Context;
         protected readonly DbSet<TEntity> DbSet;
 
-        public GenericRepository(PoSDBContext context)
+        public GenericRepository(IPoSDBContext context)
         {
             Context = context;
-            DbSet = context.Set<TEntity>();
+            DbSet = context.Instance.Set<TEntity>();
         }
 
         public async Task<TEntity> InsertAsync(TEntity entity)
         {
             DbSet.Add(entity);
-            await Context.SaveChangesAsync();
+            await Context.Instance.SaveChangesAsync();
 
             return entity;
         }
@@ -101,7 +104,7 @@ namespace PoS.Infrastructure.Repositories
             }
 
             DbSet.Remove(entity);
-            await Context.SaveChangesAsync();
+            await Context.Instance.SaveChangesAsync();
 
             return true;
         }
@@ -109,15 +112,20 @@ namespace PoS.Infrastructure.Repositories
         public async Task DeleteAsync(TEntity entity)
         {
             DbSet.Remove(entity);
-            await Context.SaveChangesAsync();
+            await Context.Instance.SaveChangesAsync();
         }
 
         public async Task<TEntity> UpdateAsync(TEntity entity)
         {
-            DbSet.Update(entity);
-            await Context.SaveChangesAsync();
+            PropertyInfo idProp = entity.GetType().GetProperty("Id") ?? throw new PoSException("Internal error. Code 99", System.Net.HttpStatusCode.InternalServerError);
 
-            return entity;
+            var currentState = await DbSet.FindAsync(idProp.GetValue(entity)) ?? throw new PoSException("Internal error. Code 98", System.Net.HttpStatusCode.InternalServerError);
+
+            Context.Instance.Entry(currentState).CurrentValues.SetValues(entity);
+
+            await Context.Instance.SaveChangesAsync();
+
+            return currentState;
         }
 
         public int Count(Expression<Func<TEntity, bool>>? filter = null)

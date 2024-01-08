@@ -14,16 +14,26 @@ namespace PoS.Application.Services
     {
         private readonly ICouponRepository _couponRepository;
         private readonly IMapper _mapper;
+        private readonly IBusinessRepository _businessRepository;
 
-        public CouponService(ICouponRepository couponRepository, IMapper mapper)
+        public CouponService(
+            ICouponRepository couponRepository,
+            IMapper mapper,
+            IBusinessRepository businessRepository)
         {
             _couponRepository = couponRepository;
             _mapper = mapper;
+            _businessRepository = businessRepository;
         }
 
         public async Task<CouponResponse> AddCouponAsync(CouponRequest couponRequest)
         {
             var coupon = _mapper.Map<Coupon>(couponRequest);
+
+            if (!await _businessRepository.Exists(x => x.Id == coupon.BusinessId))
+            {
+                throw new PoSException($"Business with id - {coupon.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
 
             return _mapper.Map<CouponResponse>(await _couponRepository.InsertAsync(coupon));
         }
@@ -99,6 +109,11 @@ namespace PoS.Application.Services
         {
             var couponUpdated = _mapper.Map<Coupon>(couponRequest);
             couponUpdated.Id = couponId;
+
+            if (!await _businessRepository.Exists(x => x.Id == couponRequest.BusinessId))
+            {
+                throw new PoSException($"Business with id - {couponRequest.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
 
             couponUpdated = await _couponRepository.UpdateAsync(couponUpdated);
 

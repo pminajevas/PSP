@@ -6,6 +6,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class TaxRepository : GenericRepository<Tax>, ITaxRepository
     {
-        public TaxRepository(PoSDBContext context) : base(context) { }
+        public TaxRepository(IPoSDBContext context) : base(context) { }
     }
 }

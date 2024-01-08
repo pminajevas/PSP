@@ -6,6 +6,6 @@ namespace PoS.Infrastructure.Repositories
 {
     public class AppointmentRepository : GenericRepository<Appointment>, IAppointmentRepository
     {
-        public AppointmentRepository(PoSDBContext context) : base(context) { }
+        public AppointmentRepository(IPoSDBContext context) : base(context) { }
     }
 }

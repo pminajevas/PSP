@@ -10,9 +10,6 @@ namespace PoS.Application.Models.Requests
         public Guid? LoyaltyId { get; set; }
 
         [Required]
-        public Guid RoleId { get; set; }
-
-        [Required]
         [MaxLength(50)]
         public string LoginName { get; set; } = string.Empty;
 
