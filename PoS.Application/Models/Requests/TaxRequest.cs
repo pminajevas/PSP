@@ -1,15 +1,10 @@
-using PoS.Core.Enums;
+﻿using PoS.Core.Enums;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
-namespace PoS.Core.Entities
+namespace PoS.Application.Models.Requests
 {
-    public class Tax
+    public class TaxRequest
     {
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
-        [Key]
-        public Guid? Id { get; set; }
-
         [Required]
         [MaxLength(50)]
         public string TaxName { get; set; } = string.Empty;
