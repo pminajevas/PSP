@@ -1,4 +1,7 @@
-﻿namespace PoS.API.Middleware
+﻿using Newtonsoft.Json;
+using PoS.Core.Exceptions;
+
+namespace PoS.API.Middleware
 {
     public class ExceptionMiddleware
     {
@@ -16,6 +19,13 @@
             try
             {
                 await _next(httpContext);
+            }
+            catch (PoSException e)
+            {
+                httpContext.Response.ContentType = "application/json";
+                httpContext.Response.StatusCode = (int)e.StatusCode;
+
+                await httpContext.Response.WriteAsync($"{JsonConvert.SerializeObject(new { Message = e.Message })}");
             }
             catch (Exception e)
             {

@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using PoS.Services.Services;
 using PoS.Application.Models.Requests;
 using PoS.Application.Filters;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PoS.Controllers
 {
@@ -19,6 +20,7 @@ namespace PoS.Controllers
 
         [HttpPost]
         [Route("/DiscountLoyalty/Discount")]
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> CreateDiscount([FromBody] DiscountRequest discountRequest)
         {
             return CreatedAtAction("CreateDiscount", await _discountLoyaltyService.AddDiscountAsync(discountRequest));
@@ -26,6 +28,7 @@ namespace PoS.Controllers
 
         [HttpGet]
         [Route("/DiscountLoyalty/Discounts")]
+        [Authorize(Roles = "Admin, Manager, Staff")]
         public async Task<IActionResult> GetDiscounts([FromQuery] DiscountFilter filter)
         {
             return Ok(await _discountLoyaltyService.GetDiscountsAsync(filter));
@@ -33,6 +36,7 @@ namespace PoS.Controllers
 
         [HttpGet]
         [Route("/DiscountLoyalty/Discount/{discountId}")]
+        [Authorize(Roles = "Admin, Manager, Staff")]
         public async Task<IActionResult> GetDiscountById([FromRoute] Guid discountId)
         {
             return Ok(await _discountLoyaltyService.GetDiscountByIdAsync(discountId));
@@ -40,6 +44,7 @@ namespace PoS.Controllers
 
         [HttpPut]
         [Route("/DiscountLoyalty/Discount/{discountId}")]
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> UpdateDiscountById([FromRoute][Required] Guid discountId, [FromBody] DiscountRequest discountRequest)
         {
             return Ok(await _discountLoyaltyService.UpdateDiscountByIdAsync(discountId, discountRequest));
@@ -47,14 +52,12 @@ namespace PoS.Controllers
 
         [HttpDelete]
         [Route("/DiscountLoyalty/Discount/{discountId}")]
+        [Authorize(Roles = "Admin, Manager")]
         public async Task<IActionResult> DeleteDiscountById([FromRoute] Guid discountId)
         {
-            if (await _discountLoyaltyService.DeleteDiscountByIdAsync(discountId))
-            {
-                return NoContent();
-            }
+            await _discountLoyaltyService.DeleteDiscountByIdAsync(discountId);
 
-            return Problem();
+            return NoContent();
         }
 
         [HttpPost]

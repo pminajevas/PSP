@@ -6,6 +6,7 @@ using PoS.Application.Models.Requests;
 using PoS.Application.Models.Responses;
 using PoS.Application.Services.Interfaces;
 using PoS.Core.Entities;
+using PoS.Core.Exceptions;
 
 namespace PoS.Application.Services
 {
@@ -28,12 +29,26 @@ namespace PoS.Application.Services
 
         public async Task<bool> DeleteStaffByIdAsync(Guid id)
         {
-            return await _staffRepository.DeleteAsync(id);
+            if (await _staffRepository.DeleteAsync(id))
+            {
+                return true;
+            }
+            else
+            {
+                throw new PoSException($"Staff with id - {id} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
         }
 
         public async Task<StaffResponse> GetStaffByIdAsync(Guid id)
         {
-            return _mapper.Map<StaffResponse>(await _staffRepository.GetByIdAsync(id));
+            var staff = await _staffRepository.GetByIdAsync(id);
+
+            if (staff is null)
+            {
+                throw new PoSException($"Staff with id - {id} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            return _mapper.Map<StaffResponse>(staff);
         }
 
         public async Task<StaffResponse> UpdateStaffAsync(Guid id, StaffRequest staffRequest)
@@ -41,7 +56,16 @@ namespace PoS.Application.Services
             var staffToUpdate = _mapper.Map<Staff>(staffRequest);
             staffToUpdate.Id = id;
 
-            return _mapper.Map<StaffResponse>(await _staffRepository.UpdateAsync(staffToUpdate));
+            if (await _staffRepository.Exists(x => x.LoginName == staffToUpdate.LoginName
+                && x.BusinessId == staffToUpdate.BusinessId))
+            {
+                throw new PoSException($"Staff with login name - {staffToUpdate.LoginName} and business id - {staffToUpdate.BusinessId} already exists",
+                    System.Net.HttpStatusCode.BadRequest);
+            }
+
+            staffToUpdate = await _staffRepository.UpdateAsync(staffToUpdate);
+
+            return _mapper.Map<StaffResponse>(staffToUpdate);
         }
 
         public async Task<List<StaffResponse>> GetStaffAsync(StaffFilter staffFilter)
@@ -90,6 +114,13 @@ namespace PoS.Application.Services
         public async Task<StaffResponse> AddStaffAsync(StaffRequest createRequest)
         {
             var staff = _mapper.Map<Staff>(createRequest);
+
+            if (await _staffRepository.Exists(x => x.LoginName == staff.LoginName
+                && x.BusinessId == staff.BusinessId))
+            {
+                throw new PoSException($"Staff with login name - {staff.LoginName} and business id - {staff.BusinessId} already exists",
+                    System.Net.HttpStatusCode.BadRequest);
+            }
 
             staff.Password = BCrypt.Net.BCrypt.HashPassword(staff.Password);
 
