@@ -12,7 +12,7 @@ namespace PoS.Application.Filters
 
         public string OrderBy { get; set; } = string.Empty;
 
-        public Sorting? Sorting { get; set; }
+        public Sorting? Sorting { get; set; } = null;
 
         public int ItemsToSkip()
         {
