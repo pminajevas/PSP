@@ -104,6 +104,11 @@ namespace PoS.Application.Services
 
         public async Task<OrderResponse> AddOrderAsync(Guid appointmentId, Guid taxId)
         {
+            if (!await _appointmentRepository.Exists(x => x.Id == appointmentId))
+            {
+                throw new PoSException($"Appointment with id - {appointmentId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
+
             Appointment? appointment = await _appointmentRepository.GetByIdAsync(appointmentId);
 
             Order order = new Order();
