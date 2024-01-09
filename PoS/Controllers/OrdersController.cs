@@ -130,6 +130,15 @@ namespace PoS.Controllers
             return Ok(await _appointmentService.GetAppointmentByIdAsync(appointmentId));
         }
 
+        [HttpPost]
+        [Route("/Orders/AppointmentOrder/{appointmentId}")]
+        public async Task<IActionResult> CreateAppointmentOrder([FromRoute][Required] Guid appointmentId, [FromBody][Required] Guid taxId)
+        {
+            var newOrder = await _orderService.AddOrderAsync(appointmentId, taxId);
+
+            return CreatedAtAction("CreateAppointmentOrder", new { orderId = newOrder.Id }, newOrder);
+        }
+
         // TODO : Implement
         //[HttpGet]
         //[Route("/Orders/Appointment/FreeTimes")]
