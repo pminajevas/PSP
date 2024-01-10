@@ -24,5 +24,9 @@ namespace PoS.Core.Entities
 
         [Required]
         public DateTime PaymentDate { get; set; }
+
+        public Guid? ConfirmationId { get; set; }
+
+        public Guid? CouponId { get; set; }
     }
 }

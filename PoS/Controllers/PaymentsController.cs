@@ -60,7 +60,14 @@ namespace PoS.Controllers
             await _paymentService.DeletePaymentAsync(paymentId);
             return NoContent();
         }
-        
+
+        [HttpPut]
+        [Route("/Payments/Confirmation/{confirmationId}")]
+        public async Task<IActionResult> ConfirmPaymentAsync([FromRoute][Required] Guid confirmationId)
+        {
+            return Ok(await _paymentService.ConfirmPaymentAsync(confirmationId));
+        }
+
         [HttpPost]
         [Route("/Payments/PaymentMethod")]
         [Authorize(Roles = "Admin,Manager,Staff")]
@@ -102,5 +109,6 @@ namespace PoS.Controllers
             await _paymentMethodService.DeletePaymentMethodAsync(paymentMethodId);
             return NoContent();
         }
+
     }
 }

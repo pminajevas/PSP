@@ -13,5 +13,7 @@ namespace PoS.Application.Services.Interfaces
         Task<IEnumerable<Payment>> GetPaymentsAsync(PaymentsFilter filter);
         Task<bool> DeletePaymentAsync(Guid paymentId);
         Task<Payment?> UpdatePaymentAsync(Guid paymentId, Payment paymentUpdate);
+
+        Task<Payment?> ConfirmPaymentAsync(Guid confirmationId);
     }
 }
