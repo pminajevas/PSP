@@ -134,7 +134,7 @@ namespace PoS.Application.Services
                     OrderItem orderItem = new OrderItem()
                     {
                         OrderId = order.Id,
-                        ItemId = body.AppointmentId,
+                        ItemId = service.Id,
                         UnitPrice = service.Price
                     };
 
