@@ -132,11 +132,11 @@ namespace PoS.Controllers
 
         [HttpPost]
         [Route("/Orders/AppointmentOrder/{appointmentId}")]
-        public async Task<IActionResult> CreateAppointmentOrder([FromRoute][Required] Guid appointmentId, [FromBody][Required] Guid taxId)
+        public async Task<IActionResult> CreateAppointmentOrder([FromBody] AppointmentOrderRequest body)
         {
-            var newOrder = await _orderService.AddOrderAsync(appointmentId, taxId);
+            var newOrder = await _orderService.AddOrderAsync(body);
 
-            return CreatedAtAction("CreateAppointmentOrder", new { orderId = newOrder.Id }, newOrder);
+            return CreatedAtAction("GetOrder", new { orderId = newOrder.Id }, newOrder);
         }
 
         // TODO : Implement

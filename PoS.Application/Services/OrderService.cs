@@ -102,14 +102,14 @@ namespace PoS.Application.Services
             return _mapper.Map<OrderResponse>(await _orderRepository.InsertAsync(order));
         }
 
-        public async Task<OrderResponse> AddOrderAsync(Guid appointmentId, Guid taxId)
+        public async Task<OrderResponse> AddOrderAsync(AppointmentOrderRequest body)
         {
-            if (!await _appointmentRepository.Exists(x => x.Id == appointmentId))
+            if (!await _appointmentRepository.Exists(x => x.Id == body.AppointmentId))
             {
-                throw new PoSException($"Appointment with id - {appointmentId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException($"Appointment with id - {body.AppointmentId} does not exist", System.Net.HttpStatusCode.BadRequest);
             }
 
-            Appointment? appointment = await _appointmentRepository.GetByIdAsync(appointmentId);
+            Appointment? appointment = await _appointmentRepository.GetByIdAsync(body.AppointmentId);
 
             Order order = new Order();
 
@@ -125,15 +125,16 @@ namespace PoS.Application.Services
                 order.CustomerId = appointment.CustomerId;
                 order.BusinessId = appointment.BusinessId;
                 order.StaffId = appointment.StaffId;
-                order.TaxId = taxId;
+                order.TaxId = body.TaxId;
                 order.Date = DateTime.UtcNow;
+                order.Status = Core.Enums.OrderStatusEnum.Draft;
                 
                 if(service != null)
                 {
                     OrderItem orderItem = new OrderItem()
                     {
                         OrderId = order.Id,
-                        ItemId = appointmentId,
+                        ItemId = body.AppointmentId,
                         UnitPrice = service.Price
                     };
 
@@ -145,7 +146,7 @@ namespace PoS.Application.Services
                 }
             }else
             {
-                throw new PoSException($"Appointment with id {appointmentId} could not be retrieved", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException($"Appointment with id {body.AppointmentId} could not be retrieved", System.Net.HttpStatusCode.BadRequest);
             }
 
             return _mapper.Map<OrderResponse>(await _orderRepository.InsertAsync(order));
