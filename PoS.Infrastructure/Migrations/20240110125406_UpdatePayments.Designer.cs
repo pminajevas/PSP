@@ -12,7 +12,7 @@ using PoS.Infrastructure.Context;
 namespace PoS.Infrastructure.Migrations
 {
     [DbContext(typeof(PoSDBContext))]
-    [Migration("20240110013433_UpdatePayments")]
+    [Migration("20240110125406_UpdatePayments")]
     partial class UpdatePayments
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,7 +33,7 @@ namespace PoS.Infrastructure.Migrations
                     b.Property<Guid>("BusinessId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<double>("Duration")
@@ -241,11 +241,14 @@ namespace PoS.Infrastructure.Migrations
                     b.Property<Guid>("BusinessId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CustomerId")
+                    b.Property<Guid?>("CustomerId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("DiscountId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("StaffId")
                         .HasColumnType("uniqueidentifier");

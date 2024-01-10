@@ -106,7 +106,7 @@ namespace PoS.Services.Services
 
                 if (order != null)
                 {
-                    order.Status = OrderStatusEnum.Paid;
+                    order.Status = OrderStatusEnum.Invoiced;
                 }
 
             }
@@ -227,7 +227,7 @@ namespace PoS.Services.Services
 
             payment.Status = PaymentStatusEnum.Paid;
             var order = await _orderRepository.GetFirstAsync(x => x.Id == payment.OrderId);
-            order.Status = OrderStatusEnum.Paid;
+            order.Status = OrderStatusEnum.Invoiced;
             order.Tip = payment.Amount - order.TotalAmount;
 
             await _orderRepository.UpdateAsync(order);
