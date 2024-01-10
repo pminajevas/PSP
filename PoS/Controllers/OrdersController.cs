@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using PoS.Application.Models.Requests;
 using PoS.Application.Filters;
 using PoS.Application.Services.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace PoS.Controllers
 {
@@ -21,6 +22,7 @@ namespace PoS.Controllers
 
         [HttpPost]
         [Route("/Orders/Order")]
+        [Authorize(Roles = "Admin, Staff, Manager")]
         public async Task<IActionResult> CreateOrder([FromBody] OrderRequest createRequest)
         {
             var newOrder = await _orderService.AddOrderAsync(createRequest);
@@ -30,6 +32,7 @@ namespace PoS.Controllers
 
         [HttpPost]
         [Route("/Orders/Receipt")]
+        [Authorize(Roles = "Admin, Staff, Manager")]
         public async Task<IActionResult> GenerateReceipt([FromBody] ReceiptRequest receiptRequest)
         {
             return Ok(await _orderService.GenerateReceipt(receiptRequest));
@@ -37,6 +40,7 @@ namespace PoS.Controllers
 
         [HttpGet]
         [Route("/Orders/Orders")]
+        [Authorize(Roles = "Admin, Staff, Manager, Customer")]
         public async Task<IActionResult> GetOrders([FromQuery] OrderFilter orderFilter)
         {
             return Ok(await _orderService.GetOrdersAsync(orderFilter));
@@ -45,6 +49,7 @@ namespace PoS.Controllers
         [HttpGet]
         [Route("/Orders/Order/{orderId}")]
         [ActionName("GetOrder")]
+        [Authorize(Roles = "Admin, Staff, Manager, Customer")]
         public async Task<IActionResult> GetOrderById([FromRoute][Required] Guid orderId)
         {
             return Ok(await _orderService.GetOrderByIdAsync(orderId));
@@ -52,6 +57,7 @@ namespace PoS.Controllers
 
         [HttpPut]
         [Route("/Orders/Order/{orderId}")]
+        [Authorize(Roles = "Admin, Staff, Manager")]
         public async Task<IActionResult> UpdateOrder([FromRoute][Required] Guid orderId, [FromBody] OrderRequest updateRequest)
         {
             return Ok(await _orderService.UpdateOrderByIdAsync(orderId, updateRequest));
@@ -59,6 +65,7 @@ namespace PoS.Controllers
 
         [HttpDelete]
         [Route("/Orders/Order/{orderId}")]
+        [Authorize(Roles = "Admin, Staff, Manager")]
         public async Task<IActionResult> DeleteOrder([FromRoute][Required] Guid orderId)
         {
             await _orderService.DeleteOrderByIdAsync(orderId);
@@ -68,6 +75,7 @@ namespace PoS.Controllers
 
         [HttpPost]
         [Route("/Orders/OrderItem")]
+        [Authorize(Roles = "Admin, Staff, Manager")]
         public async Task<IActionResult> CreateOrderItem([FromBody] OrderItemRequest createRequest)
         {
             var newOrderItem = await _orderService.AddOrderItemAsync(createRequest);
@@ -77,6 +85,7 @@ namespace PoS.Controllers
 
         [HttpGet]
         [Route("/Orders/OrderItems")]
+        [Authorize(Roles = "Admin, Staff, Manager, Customer")]
         public async Task<IActionResult> GetOrderItems([FromQuery] OrderItemFilter orderItemFilter)
         {
             return Ok(await _orderService.GetOrderItemsAsync(orderItemFilter));
@@ -85,6 +94,7 @@ namespace PoS.Controllers
         [HttpGet]
         [Route("/Orders/OrderItem/{orderItemId}")]
         [ActionName("GetOrderItem")]
+        [Authorize(Roles = "Admin, Staff, Manager, Customer")]
         public async Task<IActionResult> GetOrderItemById([FromRoute][Required] Guid orderItemId)
         {
             return Ok(await _orderService.GetOrderItemByIdAsync(orderItemId));
@@ -92,6 +102,7 @@ namespace PoS.Controllers
 
         [HttpPut]
         [Route("/Orders/OrderItem/{orderItemId}")]
+        [Authorize(Roles = "Admin, Staff, Manager")]
         public async Task<IActionResult> UpdateOrderItem([FromRoute][Required] Guid orderItemId, [FromBody] OrderItemRequest updateRequest)
         {
             return Ok(await _orderService.UpdateOrderItemByIdAsync(orderItemId, updateRequest));
@@ -99,6 +110,7 @@ namespace PoS.Controllers
 
         [HttpDelete]
         [Route("/Orders/OrderItem/{orderItemId}")]
+        [Authorize(Roles = "Admin, Staff, Manager")]
         public async Task<IActionResult> DeleteOrderItem([FromRoute][Required] Guid orderItemId)
         {
             await _orderService.DeleteOrderItemByIdAsync(orderItemId);
@@ -108,6 +120,7 @@ namespace PoS.Controllers
 
         [HttpPost]
         [Route("/Orders/Appointment")]
+        [Authorize(Roles = "Admin, Staff, Manager, Customer")]
         public async Task<IActionResult> CreateAppointment([FromBody] AppointmentRequest createRequest)
         {
             var newAppointment = await _appointmentService.AddAppointmentAsync(createRequest);
@@ -117,6 +130,7 @@ namespace PoS.Controllers
 
         [HttpGet]
         [Route("/Orders/Appointments")]
+        [Authorize(Roles = "Admin, Staff, Manager, Customer")]
         public async Task<IActionResult> GetAppointments([FromQuery] AppointmentFilter appointmentFilter)
         {
             return Ok(await _appointmentService.GetAppointmentsAsync(appointmentFilter));
@@ -125,6 +139,7 @@ namespace PoS.Controllers
         [HttpGet]
         [Route("/Orders/Appointment/{appointmentId}")]
         [ActionName("GetAppointment")]
+        [Authorize(Roles = "Admin, Staff, Manager, Customer")]
         public async Task<IActionResult> GetAppointmentById([FromRoute][Required] Guid appointmentId)
         {
             return Ok(await _appointmentService.GetAppointmentByIdAsync(appointmentId));
@@ -132,6 +147,7 @@ namespace PoS.Controllers
 
         [HttpPost]
         [Route("/Orders/AppointmentOrder")]
+        [Authorize(Roles = "Admin, Staff, Manager")]
         public async Task<IActionResult> CreateAppointmentOrder([FromBody] AppointmentOrderRequest body)
         {
             var newOrder = await _orderService.AddOrderAsync(body);
@@ -149,6 +165,7 @@ namespace PoS.Controllers
 
         [HttpPut]
         [Route("/Orders/Appointment/{appointmentId}")]
+        [Authorize(Roles = "Admin, Staff, Manager, Customer")]
         public async Task<IActionResult> UpdateAppointment([FromRoute][Required] Guid appointmentId, [FromBody] AppointmentRequest updateRequest)
         {
             return Ok(await _appointmentService.UpdateAppointmentByIdAsync(appointmentId, updateRequest));
@@ -156,6 +173,7 @@ namespace PoS.Controllers
 
         [HttpDelete]
         [Route("/Orders/Appointment/{appointmentId}")]
+        [Authorize(Roles = "Admin, Staff, Manager, Customer")]
         public async Task<IActionResult> DeleteAppointment([FromRoute][Required]Guid appointmentId)
         {
             await _appointmentService.DeleteAppointmentByIdAsync(appointmentId);

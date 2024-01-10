@@ -5,6 +5,7 @@ using PoS.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using PoS.Application.Filters;
 using PoS.Application.Services.Interfaces;
+using PoS.Application.Models.Requests;
 
 namespace PoS.Controllers
 {
@@ -42,7 +43,7 @@ namespace PoS.Controllers
         [HttpPut]
         [Route("/ItemService/Item/{itemId}")]
         [Authorize(Roles = "Admin,Manager,Staff")]
-        public async Task<IActionResult> UpdateItemAsync([FromRoute][Required]Guid itemId, [FromBody] Item body)
+        public async Task<IActionResult> UpdateItemAsync([FromRoute][Required]Guid itemId, [FromBody] ItemRequest body)
         {
             return Ok(await _itemService.UpdateItemAsync(itemId, body));
         }
@@ -50,7 +51,7 @@ namespace PoS.Controllers
         [HttpPost]
         [Route("/ItemService/Item")]
         [Authorize(Roles = "Admin,Manager,Staff")]
-        public async Task<IActionResult> CreateItemAsync([FromBody] Item item)
+        public async Task<IActionResult> CreateItemAsync([FromBody] ItemRequest item)
         {
             var newItem = await _itemService.CreateItemAsync(item);
 
@@ -68,9 +69,9 @@ namespace PoS.Controllers
         [HttpPost]
         [Route("/ItemService/Service")]
         [Authorize(Roles = "Admin,Manager,Staff")]
-        public async Task<IActionResult> CreateServiceAsync([FromBody] Service service)
+        public async Task<IActionResult> CreateServiceAsync([FromBody] ServiceRequest serviceRequest)
         {
-            var newService = await _servicesService.CreateServiceAsync(service);
+            var newService = await _servicesService.CreateServiceAsync(serviceRequest);
 
             return CreatedAtAction("GetService", new { serviceId = newService.Id }, newService);
         }
@@ -98,7 +99,7 @@ namespace PoS.Controllers
         [HttpPut]
         [Route("/ItemService/Service/{serviceId}")]
         [Authorize(Roles = "Admin,Manager,Staff")]
-        public async Task<IActionResult> UpdateServiceAsync([FromRoute][Required] Guid serviceId, [FromBody] Service body)
+        public async Task<IActionResult> UpdateServiceAsync([FromRoute][Required] Guid serviceId, [FromBody] ServiceRequest body)
         {
             return Ok(await _servicesService.UpdateServiceAsync(serviceId, body));
         }

@@ -1,14 +1,16 @@
 ﻿using PoS.Application.Filters;
+using PoS.Application.Models.Requests;
+using PoS.Application.Models.Responses;
 using PoS.Core.Entities;
 
 namespace PoS.Application.Services.Interfaces
 {
     public interface IServicesService
     {
-        Task<Service?> GetServiceByIdAsync(Guid serviceId);
-        Task<Service> CreateServiceAsync(Service service);
-        Task<IEnumerable<Service>> GetServicesAsync(ServicesFilter servicesFilter);
+        Task<ServiceResponse?> GetServiceByIdAsync(Guid serviceId);
+        Task<ServiceResponse> CreateServiceAsync(ServiceRequest serviceRequest);
+        Task<IEnumerable<ServiceResponse>> GetServicesAsync(ServicesFilter servicesFilter);
         Task<bool> DeleteServiceAsync(Guid serviceId);
-        Task<Service?> UpdateServiceAsync(Guid serviceId, Service serviceUpdate);
+        Task<ServiceResponse?> UpdateServiceAsync(Guid serviceId, ServiceRequest serviceUpdate);
     }
 }
