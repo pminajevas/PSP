@@ -54,9 +54,11 @@ namespace PoS.Services.Services
 
             SetPaymentStatus(payment, paymentMethod);
 
+            var insertedPayment = await _paymentRepository.InsertAsync(payment);
+
             await UpdateOrderStatusIfNecessary(payment);
 
-            return await _paymentRepository.InsertAsync(payment);
+            return insertedPayment;
         }
 
         private async Task ValidateOrderExists(Guid orderId)
