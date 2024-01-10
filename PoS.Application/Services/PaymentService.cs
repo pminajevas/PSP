@@ -97,22 +97,22 @@ namespace PoS.Services.Services
                     throw new PoSException($"Coupon with the id {payment.CouponId} does not exist or is no longer valid", HttpStatusCode.BadRequest);
                 }
 
-                AdjustPaymentAmountWithCoupon(payment, coupon);
+                await AdjustPaymentAmountWithCoupon(payment, coupon);
             }
         }
 
-        private void AdjustPaymentAmountWithCoupon(Payment payment, Coupon coupon)
+        private async Task AdjustPaymentAmountWithCoupon(Payment payment, Coupon coupon)
         {
             if (coupon.Amount > payment.Amount)
             {
                 coupon.Amount -= payment.Amount;
                 payment.Status = PaymentStatusEnum.Paid;
-                _couponRepository.UpdateAsync(coupon);
+                await _couponRepository.UpdateAsync(coupon);
             }
             else
             {
                 payment.Amount -= coupon.Amount;
-                _couponRepository.DeleteAsync(coupon);
+                await _couponRepository.DeleteAsync(coupon);
             }
         }
 

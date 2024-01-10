@@ -131,11 +131,28 @@ namespace PoS.Application.Services
                 
                 if(service != null)
                 {
+                    double discountAmount = 0;
+
+                    if (service.DiscountId is not null)
+                    {
+                        var discount = await _discountRepository.GetByIdAsync(service.DiscountId) ??
+                            throw new PoSException($"Discount with id - {service.DiscountId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                        discountAmount = service.Price - (service.Price * discount.DiscountPercentage);
+                    }
+
+                    order.TotalAmount = service.Price - discountAmount;
+
+                    order = await _orderRepository.InsertAsync(order);
+
                     OrderItem orderItem = new OrderItem()
                     {
                         OrderId = order.Id,
                         ItemId = service.Id,
-                        UnitPrice = service.Price
+                        UnitPrice = service.Price,
+                        UnitPriceDiscount = discountAmount,
+                        Quantity = 1,
+                        Subtotal = service.Price - discountAmount
                     };
 
                     await _orderItemRepository.InsertAsync(orderItem);
@@ -149,7 +166,7 @@ namespace PoS.Application.Services
                 throw new PoSException($"Appointment with id {body.AppointmentId} could not be retrieved", System.Net.HttpStatusCode.BadRequest);
             }
 
-            return _mapper.Map<OrderResponse>(await _orderRepository.InsertAsync(order));
+            return _mapper.Map<OrderResponse>(order);
 
         }
 
@@ -244,11 +261,6 @@ namespace PoS.Application.Services
                     throw new PoSException($"Business with id - {order.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
                 }
 
-                if (!await _customerRepository.Exists(x => x.Id == order.CustomerId))
-                {
-                    throw new PoSException($"Customer with id - {order.CustomerId} does not exist", System.Net.HttpStatusCode.BadRequest);
-                }
-
                 if (!await _staffRepository.Exists(x => x.Id == order.StaffId))
                 {
                     throw new PoSException($"Staff with id - {order.StaffId} does not exist", System.Net.HttpStatusCode.BadRequest);
@@ -268,7 +280,7 @@ namespace PoS.Application.Services
             order.TotalAmount = oldOrder.TotalAmount;
             order.Tip = oldOrder.Tip;
 
-            return _mapper.Map<OrderResponse>(await _orderRepository.InsertAsync(order));
+            return _mapper.Map<OrderResponse>(await _orderRepository.UpdateAsync(order));
         }
 
         public async Task<bool> DeleteOrderByIdAsync(Guid orderId)
@@ -559,16 +571,22 @@ namespace PoS.Application.Services
 
             var orderItems = await _orderItemRepository.GetAsync(x => x.OrderId == order.Id);
             var receiptLines = new List<ReceiptLineResponse>();
+            var paymentLines = new List<PaymentLineResponse>();
 
             foreach (var orderItem in orderItems )
             {
                 var receiptLine = new ReceiptLineResponse();
 
-                var item = await _itemRepository.GetByIdAsync(orderItem.ItemId) ??
-                    throw new PoSException($"Item with id - {orderItem.ItemId} in requested order does not exist",
-                        System.Net.HttpStatusCode.BadRequest); ;
+                Service? service = await _serviceRepository.GetByIdAsync(orderItem.ItemId);
+                Item? item = await _itemRepository.GetByIdAsync(orderItem.ItemId);
 
-                receiptLine.ItemName = item.ItemName;
+                if (item is null && service is null)
+                {
+                    throw new PoSException($"Item or service with id - {orderItem.ItemId} in requested order does not exist",
+                        System.Net.HttpStatusCode.BadRequest); ;
+                }
+
+                receiptLine.ItemName = item is not null ? item.ItemName : service.ServiceName;
                 receiptLine.UnitPrice = orderItem.UnitPrice;
                 receiptLine.Quantity = orderItem.Quantity;
                 receiptLine.DiscountAmount = orderItem.UnitPriceDiscount;
@@ -618,21 +636,27 @@ namespace PoS.Application.Services
 
             if (order.Status == Core.Enums.OrderStatusEnum.Invoiced)
             {
-                var payment = await _paymentRepository.GetFirstAsync(x => x.OrderId == order.Id);
+                var payments = await _paymentRepository.GetAsync(x => x.OrderId == order.Id);
 
-                if (payment is not null)
+                foreach (var payment in payments)
                 {
+                    var paymentLine = new PaymentLineResponse();
+
                     var paymentMethod = await _paymentMethodRepository.GetByIdAsync(payment.PaymentMethodId);
 
                     if (paymentMethod is not null)
                     {
-                        response.PaymentMethod = paymentMethod.MethodName;
+                        paymentLine.PaymentMethod = paymentMethod.MethodName;
                     }
 
-                    response.PaymentDateTime = payment.PaymentDate;
-                    response.PaymentStatus = payment.Status;
+                    paymentLine.PaymentDateTime = payment.PaymentDate;
+                    paymentLine.PaymentStatus = payment.Status;
+
+                    paymentLines.Add(paymentLine);
                 }
             }
+
+            response.PaymentLines = paymentLines;
 
             return response;
         }

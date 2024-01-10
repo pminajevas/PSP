@@ -10,10 +10,10 @@ namespace PoS.Application.Models.Requests
     public class AppointmentOrderRequest
     {
         [Required]
-        public Guid AppointmentId;
+        public Guid AppointmentId { get; set; }
 
         [Required]
-        public Guid TaxId;
+        public Guid TaxId { get; set; }
 
     }
 }

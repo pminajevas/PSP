@@ -156,7 +156,7 @@ namespace PoS.Controllers
         {
             var newRole = await _roleService.AddRoleAsync(roleRequest);
 
-            return CreatedAtAction("GetRoleAsync", new { newRole = newRole.Id }, newRole);
+            return CreatedAtAction("GetRoleAsync", new { roleId = newRole.Id }, newRole);
         }
 
         [HttpGet]
