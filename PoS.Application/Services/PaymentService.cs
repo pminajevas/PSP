@@ -7,6 +7,7 @@ using PoS.Core.Entities;
 using PoS.Core.Enums;
 using PoS.Core.Exceptions;
 using System.Net;
+using PoS.Application.Models.Requests;
 
 namespace PoS.Services.Services
 {
@@ -17,14 +18,16 @@ namespace PoS.Services.Services
         private readonly IPaymentMethodRepository _paymentMethodRepository;
         private readonly ICouponRepository _couponRepository;
         private readonly ICouponService _couponService;
+        private readonly IMapper _mapper;
 
-        public PaymentService(IPaymentRepository paymentRepository, IOrderRepository orderRepository, IPaymentMethodRepository paymentMethodRepository, ICouponRepository couponRepository, ICouponService couponService)
+        public PaymentService(IPaymentRepository paymentRepository, IOrderRepository orderRepository, IPaymentMethodRepository paymentMethodRepository, ICouponRepository couponRepository, ICouponService couponService, IMapper mapper)
         {
             _paymentRepository = paymentRepository;
             _orderRepository = orderRepository;
             _paymentMethodRepository = paymentMethodRepository;
             _couponRepository = couponRepository;
             _couponService = couponService;
+            _mapper = mapper;
         }
 
         public async Task<Payment?> GetPaymentByIdAsync(Guid paymentId)
@@ -38,8 +41,9 @@ namespace PoS.Services.Services
             return payment;
         }
 
-        public async Task<Payment> CreatePaymentAsync(Payment payment)
+        public async Task<Payment> CreatePaymentAsync(PaymentRequest _payment)
         {
+            var payment = _mapper.Map<Payment>(_payment);
             ValidatePayment(payment);
 
             await ValidateOrderExists(payment.OrderId);
@@ -54,6 +58,9 @@ namespace PoS.Services.Services
 
             SetPaymentStatus(payment, paymentMethod);
 
+            payment.PaymentDate = DateTime.Now;
+            payment.Amount = Math.Floor(payment.Amount * 100) / 100;
+
             var insertedPayment = await _paymentRepository.InsertAsync(payment);
 
             await UpdateOrderStatusIfNecessary(payment);
@@ -63,9 +70,9 @@ namespace PoS.Services.Services
 
         private async Task ValidateOrderExists(Guid orderId)
         {
-            if (!await _orderRepository.Exists(x => x.Id == orderId))
+            if (!await _orderRepository.Exists(x => x.Id == orderId && x.Status == OrderStatusEnum.Confirmed))
             {
-                throw new PoSException($"Order with id - {orderId} does not exist", HttpStatusCode.BadRequest);
+                throw new PoSException($"Order with id - {orderId} does not exist or has not been confirmed", HttpStatusCode.BadRequest);
             }
         }
 
@@ -79,11 +86,6 @@ namespace PoS.Services.Services
             if (payment.Amount <= 0)
             {
                 throw new PoSException($"Payment amount {payment.Amount} is not valid", HttpStatusCode.BadRequest);
-            }
-
-            if (payment.PaymentDate == default)
-            {
-                throw new PoSException("Payment date is required", HttpStatusCode.BadRequest);
             }
         }
 
@@ -105,7 +107,7 @@ namespace PoS.Services.Services
         {
             if (coupon.Amount > payment.Amount)
             {
-                coupon.Amount -= payment.Amount;
+                coupon.Amount -= Math.Floor(payment.Amount * 100)/100;
                 payment.Status = PaymentStatusEnum.Paid;
                 _couponRepository.UpdateAsync(coupon);
             }
@@ -136,12 +138,12 @@ namespace PoS.Services.Services
                 var order = await _orderRepository.GetByIdAsync(payment.OrderId);
                 if (order != null)
                 {
-                    var totalPaid = await _paymentRepository.GetTotalPaidAmount(order.Id);
-                    Console.WriteLine(totalPaid);
-                    if (totalPaid >= (order.TotalAmount + order.Tip))
+                    double totalPaid = await _paymentRepository.GetTotalPaidAmount(order.Id);
+                    double totalAmount = (double)order.TotalAmount;
+                    if (totalPaid >= totalAmount)
                     {
                         order.Status = OrderStatusEnum.Invoiced;
-                        order.Tip = totalPaid - order.TotalAmount;
+                        order.Tip = Math.Floor((totalPaid - totalAmount) * 100) / 100;
                         await _orderRepository.UpdateAsync(order);
                     }
                 }
@@ -264,11 +266,12 @@ namespace PoS.Services.Services
             var confirmedPayment = await _paymentRepository.UpdateAsync(payment);
 
             var order = await _orderRepository.GetFirstAsync(x => x.Id == payment.OrderId);
-            var totalPaid = await _paymentRepository.GetTotalPaidAmount(order.Id);
-            if (totalPaid >= (order.TotalAmount + order.Tip))
+            double totalPaid = await _paymentRepository.GetTotalPaidAmount(order.Id);
+            double totalAmount = (double)order.TotalAmount;
+            if (totalPaid >= totalAmount)
             {
                 order.Status = OrderStatusEnum.Invoiced;
-                order.Tip = totalPaid - order.TotalAmount;
+                order.Tip = Math.Floor((totalPaid - totalAmount) * 100) / 100;
                 await _orderRepository.UpdateAsync(order);
             }
 

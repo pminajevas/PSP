@@ -4,6 +4,7 @@ using PoS.Core.Entities;
 using Microsoft.AspNetCore.Authorization;
 using PoS.Application.Services.Interfaces;
 using PoS.Application.Filters;
+using PoS.Application.Models.Requests;
 
 namespace PoS.Controllers
 {
@@ -22,7 +23,7 @@ namespace PoS.Controllers
         [HttpPost]
         [Route("/Payments/Payment")]
         [Authorize(Roles = "Admin,Manager,Staff")]
-        public async Task<IActionResult> CreatePaymentAsync([FromBody] Payment payment)
+        public async Task<IActionResult> CreatePaymentAsync([FromBody] PaymentRequest payment)
         {
             var newPayment = await _paymentService.CreatePaymentAsync(payment);
             return CreatedAtAction("GetPayment", new { paymentId = newPayment.Id }, newPayment);
@@ -71,7 +72,7 @@ namespace PoS.Controllers
         [HttpPost]
         [Route("/Payments/PaymentMethod")]
         [Authorize(Roles = "Admin,Manager,Staff")]
-        public async Task<IActionResult> CreatePaymentMethodAsync([FromBody] PaymentMethod paymentMethod)
+        public async Task<IActionResult> CreatePaymentMethodAsync([FromBody] PaymentMethodRequest paymentMethod)
         {
             var newPaymentMethod = await _paymentMethodService.CreatePaymentMethodAsync(paymentMethod);
             return CreatedAtAction("GetPaymentMethod", new { paymentMethodId = newPaymentMethod.Id }, newPaymentMethod);
