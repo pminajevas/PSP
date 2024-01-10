@@ -259,6 +259,7 @@ namespace PoS.Services.Services
             }
 
             payment.Status = PaymentStatusEnum.Paid;
+            var confirmedPayment = await _paymentRepository.UpdateAsync(payment);
 
             var order = await _orderRepository.GetFirstAsync(x => x.Id == payment.OrderId);
             var totalPaid = await _paymentRepository.GetTotalPaidAmount(order.Id);
@@ -269,7 +270,7 @@ namespace PoS.Services.Services
                 await _orderRepository.UpdateAsync(order);
             }
 
-            return await _paymentRepository.UpdateAsync(payment);
+            return confirmedPayment;
         }
 
 
