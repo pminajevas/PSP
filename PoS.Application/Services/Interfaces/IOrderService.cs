@@ -8,6 +8,8 @@ namespace PoS.Application.Services.Interfaces
     {
         public Task<OrderResponse> AddOrderAsync(OrderRequest createRequest);
 
+        public Task<OrderResponse> AddOrderAsync(AppointmentOrderRequest body);
+
         public Task<List<OrderResponse>> GetOrdersAsync(OrderFilter filter);
 
         public Task<OrderResponse?> GetOrderByIdAsync(Guid orderId);

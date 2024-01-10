@@ -24,6 +24,7 @@ namespace PoS.Application.Services
         private readonly ILoyaltyProgramRepository _loyaltyProgramRepository;
         private readonly IPaymentRepository _paymentRepository;
         private readonly IPaymentMethodRepository _paymentMethodRepository;
+        private readonly IAppointmentRepository _appointmentRepository;
         private readonly IMapper _mapper;
 
         public OrderService(
@@ -39,6 +40,7 @@ namespace PoS.Application.Services
             ILoyaltyProgramRepository loyaltyProgramRepository,
             IPaymentRepository paymentRepository,
             IPaymentMethodRepository paymentMethodRepository,
+            IAppointmentRepository appointmentRepository,
             IMapper mapper
         )
         {
@@ -54,6 +56,7 @@ namespace PoS.Application.Services
             _loyaltyProgramRepository = loyaltyProgramRepository;
             _paymentRepository = paymentRepository;
             _paymentMethodRepository = paymentMethodRepository;
+            _appointmentRepository = appointmentRepository;
             _mapper = mapper;
         }
 
@@ -97,6 +100,57 @@ namespace PoS.Application.Services
             order.Tip = 0;
 
             return _mapper.Map<OrderResponse>(await _orderRepository.InsertAsync(order));
+        }
+
+        public async Task<OrderResponse> AddOrderAsync(AppointmentOrderRequest body)
+        {
+            if (!await _appointmentRepository.Exists(x => x.Id == body.AppointmentId))
+            {
+                throw new PoSException($"Appointment with id - {body.AppointmentId} does not exist", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            Appointment? appointment = await _appointmentRepository.GetByIdAsync(body.AppointmentId);
+
+            Order order = new Order();
+
+            if (appointment!=null)
+            {
+                if (!await _serviceRepository.Exists(x => x.Id == appointment.ServiceId))
+                {
+                    throw new PoSException($"Service with id - {appointment.ServiceId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                }
+
+                Service? service = await _serviceRepository.GetByIdAsync(appointment.ServiceId);
+
+                order.CustomerId = appointment.CustomerId;
+                order.BusinessId = appointment.BusinessId;
+                order.StaffId = appointment.StaffId;
+                order.TaxId = body.TaxId;
+                order.Date = DateTime.UtcNow;
+                order.Status = Core.Enums.OrderStatusEnum.Draft;
+                
+                if(service != null)
+                {
+                    OrderItem orderItem = new OrderItem()
+                    {
+                        OrderId = order.Id,
+                        ItemId = service.Id,
+                        UnitPrice = service.Price
+                    };
+
+                    await _orderItemRepository.InsertAsync(orderItem);
+                }
+                else
+                {
+                    throw new PoSException($"Service with id {appointment.ServiceId} could not be retrieved", System.Net.HttpStatusCode.BadRequest);
+                }
+            }else
+            {
+                throw new PoSException($"Appointment with id {body.AppointmentId} could not be retrieved", System.Net.HttpStatusCode.BadRequest);
+            }
+
+            return _mapper.Map<OrderResponse>(await _orderRepository.InsertAsync(order));
+
         }
 
         public async Task<List<OrderResponse>> GetOrdersAsync(OrderFilter orderFilter)
