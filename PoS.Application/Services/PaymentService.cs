@@ -6,6 +6,7 @@ using PoS.Application.Services.Interfaces;
 using PoS.Core.Entities;
 using PoS.Core.Enums;
 using PoS.Core.Exceptions;
+using System.Net;
 
 namespace PoS.Services.Services
 {
@@ -39,55 +40,82 @@ namespace PoS.Services.Services
 
         public async Task<Payment> CreatePaymentAsync(Payment payment)
         {
-            if (payment == null)
-            {
-                throw new PoSException("Payment data is required.", System.Net.HttpStatusCode.BadRequest);
-            }
+            ValidatePayment(payment);
 
-            if (!await _orderRepository.Exists(x => x.Id == payment.OrderId))
-            {
-                throw new PoSException($"Order with id - {payment.OrderId} does not exist", System.Net.HttpStatusCode.BadRequest);
-            }
+            await ValidateOrderExists(payment.OrderId);
 
-            if (payment.CouponId != null)
-            {
-                var coupon = await _couponRepository.GetByIdAsync(payment.CouponId);
-                if (coupon == null)
-                {
-                    throw new PoSException($"Coupon with the id {payment.CouponId} does not exist", System.Net.HttpStatusCode.BadRequest);
-                }
-                else if (coupon.Amount > payment.Amount)
-                {
-                    coupon.Amount -= payment.Amount;
-                    if (await _couponRepository.UpdateAsync(coupon) != null)
-                    {
-                        payment.Status = PaymentStatusEnum.Paid;
-                    }
-                }
-                else
-                {
-                    payment.Amount -= coupon.Amount;
-                    await _couponRepository.DeleteAsync(coupon);
-                }
-            }
+            await HandleCouponLogic(payment);
 
             var paymentMethod = await _paymentMethodRepository.GetByIdAsync(payment.PaymentMethodId);
-
             if (paymentMethod == null)
             {
-                throw new PoSException($"Payment method with id - {payment.PaymentMethodId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException($"Payment method with id - {payment.PaymentMethodId} does not exist", HttpStatusCode.BadRequest);
+            }
+
+            SetPaymentStatus(payment, paymentMethod);
+
+            await UpdateOrderStatusIfNecessary(payment);
+
+            return await _paymentRepository.InsertAsync(payment);
+        }
+
+        private async Task ValidateOrderExists(Guid orderId)
+        {
+            if (!await _orderRepository.Exists(x => x.Id == orderId))
+            {
+                throw new PoSException($"Order with id - {orderId} does not exist", HttpStatusCode.BadRequest);
+            }
+        }
+
+        private void ValidatePayment(Payment payment)
+        {
+            if (payment == null)
+            {
+                throw new PoSException("Payment data is required.", HttpStatusCode.BadRequest);
             }
 
             if (payment.Amount <= 0)
             {
-                throw new PoSException($"Payment amount {payment.Amount} is not valid", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException($"Payment amount {payment.Amount} is not valid", HttpStatusCode.BadRequest);
             }
 
-            if (payment.PaymentDate == default(DateTime))
+            if (payment.PaymentDate == default)
             {
-                throw new PoSException("Payment date is required", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException("Payment date is required", HttpStatusCode.BadRequest);
             }
+        }
 
+        private async Task HandleCouponLogic(Payment payment)
+        {
+            if (payment.CouponId != null)
+            {
+                var coupon = await _couponRepository.GetByIdAsync(payment.CouponId);
+                if (coupon == null || coupon.Validity != CouponValidityEnum.True)
+                {
+                    throw new PoSException($"Coupon with the id {payment.CouponId} does not exist or is no longer valid", HttpStatusCode.BadRequest);
+                }
+
+                AdjustPaymentAmountWithCoupon(payment, coupon);
+            }
+        }
+
+        private void AdjustPaymentAmountWithCoupon(Payment payment, Coupon coupon)
+        {
+            if (coupon.Amount > payment.Amount)
+            {
+                coupon.Amount -= payment.Amount;
+                payment.Status = PaymentStatusEnum.Paid;
+                _couponRepository.UpdateAsync(coupon);
+            }
+            else
+            {
+                payment.Amount -= coupon.Amount;
+                _couponRepository.DeleteAsync(coupon);
+            }
+        }
+
+        private void SetPaymentStatus(Payment payment, PaymentMethod paymentMethod)
+        {
             if (paymentMethod.MethodName.Equals("cash", StringComparison.OrdinalIgnoreCase))
             {
                 payment.Status = PaymentStatusEnum.Paid;
@@ -97,36 +125,25 @@ namespace PoS.Services.Services
                 payment.Status = PaymentStatusEnum.Processing;
                 payment.ConfirmationId = GenerateConfirmationId();
             }
+        }
 
+        private async Task UpdateOrderStatusIfNecessary(Payment payment)
+        {
             if (payment.Status == PaymentStatusEnum.Paid)
             {
                 var order = await _orderRepository.GetByIdAsync(payment.OrderId);
-
                 if (order != null)
                 {
-                    if (payment.Amount >= (order.TotalAmount + order.Tip))
+                    var totalPaid = await _paymentRepository.GetTotalPaidAmount(order.Id);
+                    Console.WriteLine(totalPaid);
+                    if (totalPaid >= (order.TotalAmount + order.Tip))
                     {
                         order.Status = OrderStatusEnum.Invoiced;
+                        order.Tip = totalPaid - order.TotalAmount;
+                        await _orderRepository.UpdateAsync(order);
                     }
-                    else
-                    {
-                        double total = 0;
-                        foreach (var p in await _paymentRepository.GetAsync(x => x.OrderId == order.Id)){
-                            if (p.Status == PaymentStatusEnum.Paid)
-                            {
-                                total += p.Amount;
-                            }
-                        }
-                        if (total >= (order.TotalAmount + order.Tip))
-                        {
-                            order.Status = OrderStatusEnum.Invoiced;
-                        }
-                    }
-                    await _orderRepository.UpdateAsync(order);
                 }
             }
-
-            return await _paymentRepository.InsertAsync(payment);
         }
 
         public async Task<IEnumerable<Payment>> GetPaymentsAsync(PaymentsFilter filter)
@@ -187,13 +204,14 @@ namespace PoS.Services.Services
 
         public async Task<bool> DeletePaymentAsync(Guid paymentId)
         {
-            if (await _paymentRepository.DeleteAsync(paymentId))
+            var payment = await _paymentRepository.GetByIdAsync(paymentId);
+            if (payment == null)
             {
-                return true;
+                throw new PoSException($"Payment with id - {paymentId} does not exist", HttpStatusCode.NotFound);
             }
-            {
-                throw new PoSException($"Payment with id - {paymentId} does not exist", System.Net.HttpStatusCode.BadRequest);
-            }
+
+            await _paymentRepository.DeleteAsync(paymentId);
+            return true;
         }
 
         public async Task<Payment?> UpdatePaymentAsync(Guid paymentId, Payment paymentUpdate)
@@ -232,25 +250,28 @@ namespace PoS.Services.Services
             return Guid.NewGuid();
         }
 
-
         public async Task<Payment?> ConfirmPaymentAsync(Guid confirmationId)
         {
             var payment = await _paymentRepository.GetFirstAsync(x => x.ConfirmationId == confirmationId);
             if (payment == null)
             {
-                throw new PoSException("payment does not exist", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException("Payment does not exist", HttpStatusCode.BadRequest);
             }
 
             payment.Status = PaymentStatusEnum.Paid;
-            var order = await _orderRepository.GetFirstAsync(x => x.Id == payment.OrderId);
-            order.Status = OrderStatusEnum.Invoiced;
-            order.Tip = payment.Amount - order.TotalAmount;
 
-            await _orderRepository.UpdateAsync(order);
+            var order = await _orderRepository.GetFirstAsync(x => x.Id == payment.OrderId);
+            var totalPaid = await _paymentRepository.GetTotalPaidAmount(order.Id);
+            if (totalPaid >= (order.TotalAmount + order.Tip))
+            {
+                order.Status = OrderStatusEnum.Invoiced;
+                order.Tip = totalPaid - order.TotalAmount;
+                await _orderRepository.UpdateAsync(order);
+            }
 
             return await _paymentRepository.UpdateAsync(payment);
-
         }
+
 
     }
 }
