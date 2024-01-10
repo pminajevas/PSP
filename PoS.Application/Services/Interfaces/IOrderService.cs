@@ -25,5 +25,7 @@ namespace PoS.Application.Services.Interfaces
         public Task<OrderItemResponse?> UpdateOrderItemByIdAsync(Guid orderItemId, OrderItemRequest updateRequest);
 
         public Task<bool> DeleteOrderItemByIdAsync(Guid orderItemId);
+
+        public Task<ReceiptResponse> GenerateReceipt(ReceiptRequest receiptRequest);
     }
 }

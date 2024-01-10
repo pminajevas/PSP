@@ -152,6 +152,7 @@ namespace PoS.Application.Services
             }
 
             customerUpdated.Password = BCrypt.Net.BCrypt.HashPassword(customerUpdated.Password);
+            customerUpdated.Points = oldCustomer.Points;
 
             customerUpdated = await _customerRepository.UpdateAsync(customerUpdated);
 

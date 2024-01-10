@@ -4,8 +4,7 @@ namespace PoS.Application.Models.Requests
 {
     public class AppointmentRequest
     {
-        [Required]
-        public Guid CustomerId { get; set; }
+        public Guid? CustomerId { get; set; }
 
         [Required]
         public Guid ServiceId { get; set; }
