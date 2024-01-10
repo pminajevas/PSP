@@ -12,8 +12,8 @@ using PoS.Infrastructure.Context;
 namespace PoS.Infrastructure.Migrations
 {
     [DbContext(typeof(PoSDBContext))]
-    [Migration("20240110125406_UpdatePayments")]
-    partial class UpdatePayments
+    [Migration("20240110153603_UpdatePayment")]
+    partial class UpdatePayment
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
