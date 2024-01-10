@@ -1,6 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using PoS.Application.Abstractions.Repositories;
 using PoS.Application.Filters;
+using PoS.Application.Models.Requests;
+using PoS.Application.Models.Responses;
 using PoS.Application.Services.Interfaces;
 using PoS.Core.Entities;
 using PoS.Core.Exceptions;
@@ -14,21 +17,26 @@ namespace PoS.Services.Services
         private readonly IBusinessRepository _businessRepository;
         private readonly IStaffRepository _staffRepository;
         private readonly IDiscountRepository _discountRepository;
+        private readonly IMapper _mapper;
 
         public ServicesService(
             IServiceRepository servicesRepository,
             IBusinessRepository businessRepository,
             IStaffRepository staffRepository,
-            IDiscountRepository discountRepository)
+            IDiscountRepository discountRepository,
+            IMapper mapper)
         {
             _servicesRepository = servicesRepository;
             _businessRepository = businessRepository;
             _staffRepository = staffRepository;
             _discountRepository = discountRepository;
+            _mapper = mapper;
         }
 
-        public async Task<Service> CreateServiceAsync(Service service)
+        public async Task<ServiceResponse> CreateServiceAsync(ServiceRequest serviceRequest)
         {
+            var service = _mapper.Map<Service>(serviceRequest);
+
             if (!await _businessRepository.Exists(x => x.Id == service.BusinessId))
             {
                 throw new PoSException($"Business with id - {service.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
@@ -55,7 +63,7 @@ namespace PoS.Services.Services
                     System.Net.HttpStatusCode.BadRequest);
             }
 
-            return await _servicesRepository.InsertAsync(service);
+            return _mapper.Map<ServiceResponse>(await _servicesRepository.InsertAsync(service));
         }
 
         public async Task<bool> DeleteServiceAsync(Guid serviceId)
@@ -70,7 +78,7 @@ namespace PoS.Services.Services
             }
         }
 
-        public async Task<IEnumerable<Service>> GetServicesAsync(ServicesFilter filter)
+        public async Task<IEnumerable<ServiceResponse>> GetServicesAsync(ServicesFilter filter)
         {
             var servicesFilter = PredicateBuilder.True<Service>();
             Func<IQueryable<Service>, IOrderedQueryable<Service>>? orderByServices = null;
@@ -110,10 +118,10 @@ namespace PoS.Services.Services
                 filter.PageSize
             );
 
-            return businesses;
+            return _mapper.Map<IEnumerable<ServiceResponse>>(businesses);
         }
 
-        public async Task<Service?> GetServiceByIdAsync(Guid serviceId)
+        public async Task<ServiceResponse?> GetServiceByIdAsync(Guid serviceId)
         {
             var service = await _servicesRepository.GetByIdAsync(serviceId);
 
@@ -122,49 +130,51 @@ namespace PoS.Services.Services
                 throw new PoSException($"Service with id - {serviceId} does not exist", System.Net.HttpStatusCode.NotFound);
             }
 
-            return service;
+            return _mapper.Map<ServiceResponse>(service);
         }
 
-        public async Task<Service?> UpdateServiceAsync(Guid serviceId, Service serviceUpdate)
+        public async Task<ServiceResponse?> UpdateServiceAsync(Guid serviceId, ServiceRequest serviceUpdate)
         {
-            serviceUpdate.Id = serviceId;
+            var service = _mapper.Map<Service>(serviceUpdate);
 
-            if (!await _businessRepository.Exists(x => x.Id == serviceUpdate.BusinessId))
+            service.Id = serviceId;
+
+            if (!await _businessRepository.Exists(x => x.Id == service.BusinessId))
             {
-                throw new PoSException($"Business with id - {serviceUpdate.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException($"Business with id - {service.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
             }
 
-            if (serviceUpdate.DiscountId != null)
+            if (service.DiscountId != null)
             {
-                if (!await _discountRepository.Exists(x => x.Id == serviceUpdate.DiscountId))
+                if (!await _discountRepository.Exists(x => x.Id == service.DiscountId))
                 {
-                    throw new PoSException($"Discount with id - {serviceUpdate.DiscountId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                    throw new PoSException($"Discount with id - {service.DiscountId} does not exist", System.Net.HttpStatusCode.BadRequest);
                 }
             }
 
-            if (!await _staffRepository.Exists(x => x.Id == serviceUpdate.StaffId))
+            if (!await _staffRepository.Exists(x => x.Id == service.StaffId))
             {
-                throw new PoSException($"Staff with id - {serviceUpdate.StaffId} does not exist", System.Net.HttpStatusCode.BadRequest);
+                throw new PoSException($"Staff with id - {service.StaffId} does not exist", System.Net.HttpStatusCode.BadRequest);
             }
 
             var oldService = await _servicesRepository.GetFirstAsync(x => x.Id == serviceId) ??
                 throw new PoSException($"Service with id - {serviceId} does not exist and can not be updated",
                     System.Net.HttpStatusCode.BadRequest);
 
-            if (oldService.ServiceName != serviceUpdate.ServiceName || oldService.BusinessId != serviceUpdate.BusinessId || oldService.StaffId != serviceUpdate.StaffId)
+            if (oldService.ServiceName != serviceUpdate.ServiceName || oldService.BusinessId != service.BusinessId || oldService.StaffId != service.StaffId)
             {
-                if (await _servicesRepository.Exists(x => x.ServiceName == serviceUpdate.ServiceName
-                && x.BusinessId == serviceUpdate.BusinessId
-                && x.StaffId == serviceUpdate.StaffId))
+                if (await _servicesRepository.Exists(x => x.ServiceName == service.ServiceName
+                && x.BusinessId == service.BusinessId
+                && x.StaffId == service.StaffId))
                 {
-                    throw new PoSException($"Service with name - {serviceUpdate.ServiceName}, business id - {serviceUpdate.BusinessId} and staff id - {serviceUpdate.StaffId} already exists",
+                    throw new PoSException($"Service with name - {service.ServiceName}, business id - {service.BusinessId} and staff id - {service.StaffId} already exists",
                         System.Net.HttpStatusCode.BadRequest);
                 }
             }
 
-            serviceUpdate = await _servicesRepository.UpdateAsync(serviceUpdate);
+            service = await _servicesRepository.UpdateAsync(service);
 
-            return serviceUpdate;
+            return _mapper.Map<ServiceResponse>(service);
         }
     }
 }
