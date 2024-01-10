@@ -2,8 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using PoS.Application.Abstractions.Repositories;
 using PoS.Application.Filters;
-using PoS.Application.Models.Requests;
-using PoS.Application.Models.Responses;
 using PoS.Application.Services.Interfaces;
 using PoS.Core.Entities;
 using PoS.Core.Enums;
@@ -99,16 +97,33 @@ namespace PoS.Services.Services
                 payment.Status = PaymentStatusEnum.Processing;
                 payment.ConfirmationId = GenerateConfirmationId();
             }
-            
+
             if (payment.Status == PaymentStatusEnum.Paid)
             {
                 var order = await _orderRepository.GetByIdAsync(payment.OrderId);
 
                 if (order != null)
                 {
-                    order.Status = OrderStatusEnum.Invoiced;
+                    if (payment.Amount >= (order.TotalAmount + order.Tip))
+                    {
+                        order.Status = OrderStatusEnum.Invoiced;
+                    }
+                    else
+                    {
+                        double total = 0;
+                        foreach (var p in await _paymentRepository.GetAsync(x => x.OrderId == order.Id)){
+                            if (p.Status == PaymentStatusEnum.Paid)
+                            {
+                                total += p.Amount;
+                            }
+                        }
+                        if (total >= (order.TotalAmount + order.Tip))
+                        {
+                            order.Status = OrderStatusEnum.Invoiced;
+                        }
+                    }
+                    await _orderRepository.UpdateAsync(order);
                 }
-
             }
 
             return await _paymentRepository.InsertAsync(payment);
@@ -217,6 +232,7 @@ namespace PoS.Services.Services
             return Guid.NewGuid();
         }
 
+
         public async Task<Payment?> ConfirmPaymentAsync(Guid confirmationId)
         {
             var payment = await _paymentRepository.GetFirstAsync(x => x.ConfirmationId == confirmationId);
@@ -231,9 +247,10 @@ namespace PoS.Services.Services
             order.Tip = payment.Amount - order.TotalAmount;
 
             await _orderRepository.UpdateAsync(order);
-                
+
             return await _paymentRepository.UpdateAsync(payment);
-            
+
         }
+
     }
 }
