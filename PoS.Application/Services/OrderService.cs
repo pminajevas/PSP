@@ -141,7 +141,7 @@ namespace PoS.Application.Services
                         var discount = await _discountRepository.GetByIdAsync(service.DiscountId) ??
                             throw new PoSException($"Discount with id - {service.DiscountId} does not exist", System.Net.HttpStatusCode.BadRequest);
 
-                        discountAmount = Math.Round(service.Price - (service.Price * discount.DiscountPercentage), 2);
+                        discountAmount = Math.Round((service.Price * discount.DiscountPercentage), 2);
                     }
 
                     var tax = await _taxRepository.GetByIdAsync(body.TaxId) ??
@@ -717,6 +717,7 @@ namespace PoS.Application.Services
 
                     paymentLine.PaymentDateTime = payment.PaymentDate;
                     paymentLine.PaymentStatus = payment.Status;
+                    paymentLine.PaymentAmount = payment.Amount;
 
                     paymentLines.Add(paymentLine);
                 }

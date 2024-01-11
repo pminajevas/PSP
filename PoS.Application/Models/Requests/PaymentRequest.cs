@@ -19,5 +19,7 @@ namespace PoS.Application.Models.Requests
         [Required]
         public double Amount { get; set; }
 
+        public Guid? CouponId { get; set; }
+
     }
 }

@@ -10,9 +10,6 @@ namespace PoS.Application.Models.Requests
         public Guid ServiceId { get; set; }
 
         [Required]
-        public Guid StaffId { get; set; }
-
-        [Required]
         public Guid BusinessId { get; set; }
 
         [Required]

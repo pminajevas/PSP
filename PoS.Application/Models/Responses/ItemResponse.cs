@@ -16,5 +16,7 @@ namespace PoS.Application.Models.Responses
         public string? ItemDescription { get; set; }
         
         public double Price { get; set; }
+
+        public Guid DiscountId { get; set; }
     }
 }

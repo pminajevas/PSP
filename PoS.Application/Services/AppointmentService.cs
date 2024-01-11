@@ -55,6 +55,8 @@ namespace PoS.Application.Services
                 throw new PoSException($"Service with id - {appointment.ServiceId} does not exist", System.Net.HttpStatusCode.BadRequest);
             }
 
+            appointment.StaffId = service.StaffId;
+
             if (!await _staffRepository.Exists(x => x.Id == appointment.StaffId))
             {
                 throw new PoSException($"Staff with id - {appointment.StaffId} does not exist", System.Net.HttpStatusCode.BadRequest);
@@ -77,9 +79,11 @@ namespace PoS.Application.Services
             }
 
             if (await _appointmentRepository.Exists(x =>
-                (x.ReservationTime >= startTime && x.EndTime >= endTime)
+                ((x.ReservationTime >= startTime && x.EndTime >= endTime)
                 || (x.ReservationTime >= startTime && x.ReservationTime < endTime)
-                || (x.EndTime > startTime && x.EndTime <= endTime)
+                || (x.EndTime > startTime && x.EndTime <= endTime))
+                && (x.StaffId == appointment.StaffId)
+                && (x.ServiceId == appointment.ServiceId)
             ))
             {
                 throw new PoSException($"Requested time is not free", System.Net.HttpStatusCode.BadRequest);
