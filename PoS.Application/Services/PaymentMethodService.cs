@@ -8,15 +8,18 @@ using PoS.Application.Services.Interfaces;
 using PoS.Core.Entities;
 using PoS.Core.Exceptions;
 
+
 namespace PoS.Application.Services
 {
     public class PaymentMethodService : IPaymentMethodService
     {
         private readonly IPaymentMethodRepository _paymentMethodRepository;
+        private readonly IMapper _mapper;
 
-        public PaymentMethodService(IPaymentMethodRepository paymentMethodRepository)
+        public PaymentMethodService(IPaymentMethodRepository paymentMethodRepository, IMapper mapper)
         {
             _paymentMethodRepository = paymentMethodRepository;
+            _mapper = mapper;
         }
         public async Task<PaymentMethod?> GetPaymentMethodByIdAsync(Guid paymentMethodId)
         {
@@ -29,8 +32,9 @@ namespace PoS.Application.Services
 
             return paymentMethod;
         }
-        public async Task<PaymentMethod> CreatePaymentMethodAsync(PaymentMethod paymentMethod)
+        public async Task<PaymentMethod> CreatePaymentMethodAsync(PaymentMethodRequest _paymentMethod)
         {
+            var paymentMethod = _mapper.Map<PaymentMethod>(_paymentMethod);
             if (await _paymentMethodRepository.Exists(x => x.MethodName == paymentMethod.MethodName))
             {
                 throw new PoSException($"Payment method with name - {paymentMethod.MethodName} already exists",
