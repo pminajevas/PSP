@@ -5,7 +5,6 @@ namespace PoS.Core.Enums
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum TaxCategoryEnum
     {
-        Flat = 0,
-        Percent = 1
+        Percent = 0
     }
 }

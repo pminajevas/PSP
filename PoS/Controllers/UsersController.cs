@@ -107,7 +107,7 @@ namespace PoS.Controllers
         [HttpGet]
         [Route("/Users/Staffs")]
         [Authorize(Roles = "Admin,Mananger")]
-        public async Task<IActionResult> GetAllStaffAsync(StaffFilter filter)
+        public async Task<IActionResult> GetAllStaffAsync([FromQuery] StaffFilter filter)
         {
             return Ok(await _staffService.GetStaffAsync(filter));
         }
@@ -156,7 +156,7 @@ namespace PoS.Controllers
         {
             var newRole = await _roleService.AddRoleAsync(roleRequest);
 
-            return CreatedAtAction("GetRoleAsync", new { newRole = newRole.Id }, newRole);
+            return CreatedAtAction("GetRoleAsync", new { roleId = newRole.Id }, newRole);
         }
 
         [HttpGet]

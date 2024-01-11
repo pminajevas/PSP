@@ -44,6 +44,12 @@ namespace PoS.Application.Mapper
 
             CreateMap<PaymentRequest, Payment>();
             CreateMap<PaymentMethodRequest, PaymentMethod>();
+            
+            CreateMap<ItemRequest, Item>();
+            CreateMap<Item, ItemResponse>();
+
+            CreateMap<ServiceRequest, Service>();
+            CreateMap<Service, ServiceResponse>();
         }
     }
 

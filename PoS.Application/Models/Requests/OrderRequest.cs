@@ -17,8 +17,5 @@ namespace PoS.Application.Models.Requests
         public Guid TaxId { get; set; }
 
         public Guid? DiscountId {  get; set; }
-
-        [Required]
-        public DateTime Date { get; set; }
     }
 }

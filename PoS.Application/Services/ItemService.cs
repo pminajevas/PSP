@@ -29,8 +29,10 @@ namespace PoS.Services.Services
             _discountRepository = discountRepository;
         }
 
-        public async Task<Item> CreateItemAsync(Item item)
+        public async Task<ItemResponse> CreateItemAsync(ItemRequest itemRequest)
         {
+            var item = _mapper.Map<Item>(itemRequest);
+
             if (!await _businessRepository.Exists(x => x.Id == item.BusinessId))
             {
                 throw new PoSException($"Business with id - {item.BusinessId} does not exist", System.Net.HttpStatusCode.BadRequest);
@@ -50,7 +52,9 @@ namespace PoS.Services.Services
                     System.Net.HttpStatusCode.BadRequest);
             }
 
-            return await _itemRepository.InsertAsync(item);
+            item.Price = Math.Round(item.Price, 2);
+
+            return _mapper.Map<ItemResponse>(await _itemRepository.InsertAsync(item));
         }
 
         public async Task<bool> DeleteItemAsync(Guid itemId)
@@ -64,7 +68,7 @@ namespace PoS.Services.Services
             }
         }
 
-        public async Task<Item?> GetItemByIdAsync(Guid itemId)
+        public async Task<ItemResponse?> GetItemByIdAsync(Guid itemId)
         {
             var item =  await _itemRepository.GetByIdAsync(itemId);
 
@@ -73,10 +77,10 @@ namespace PoS.Services.Services
                 throw new PoSException($"Item with id - {itemId} does not exist", System.Net.HttpStatusCode.NotFound);
             }
 
-            return item;
+            return _mapper.Map<ItemResponse>(item);
         }
 
-        public async Task<IEnumerable<Item>> GetItemsAsync(ItemsFilter filter)
+        public async Task<IEnumerable<ItemResponse>> GetItemsAsync(ItemsFilter filter)
         {
             var itemFilter = PredicateBuilder.True<Item>();
             Func<IQueryable<Item>, IOrderedQueryable<Item>>? orderByItems = null;
@@ -111,12 +115,13 @@ namespace PoS.Services.Services
                 filter.PageSize
             );
 
-            return businesses;
+            return _mapper.Map<IEnumerable<ItemResponse>>(businesses);
         }
 
-        public async Task<Item?> UpdateItemAsync(Guid itemId, Item itemUpdate)
+        public async Task<ItemResponse?> UpdateItemAsync(Guid itemId, ItemRequest itemUpdate)
         {
-            itemUpdate.Id = itemId;
+            var item = _mapper.Map<Item>(itemUpdate);
+            item.Id = itemId;
 
             if (itemUpdate.DiscountId != null)
             {
@@ -130,18 +135,21 @@ namespace PoS.Services.Services
                 throw new PoSException($"Item with id - {itemId} does not exist and can not be updated",
                     System.Net.HttpStatusCode.BadRequest);
 
-            if (oldItem.ItemName != itemUpdate.ItemName || oldItem.BusinessId != itemUpdate.BusinessId)
+            if (oldItem.ItemName != item.ItemName || oldItem.BusinessId != item.BusinessId)
             {
-                if (await _itemRepository.Exists(x => x.ItemName == itemUpdate.ItemName && x.BusinessId == itemUpdate.BusinessId))
+                if (await _itemRepository.Exists(x => x.ItemName == item.ItemName && x.BusinessId == item.BusinessId))
                 {
-                    throw new PoSException($"Item with name - {itemUpdate.ItemName} and business id - {itemUpdate.BusinessId} already exists",
+                    throw new PoSException($"Item with name - {item.ItemName} and business id - {item.BusinessId} already exists",
                         System.Net.HttpStatusCode.BadRequest);
                 }
-            }    
+            }
+            
+            if (oldItem.Price != itemUpdate.Price)
+            {
+                itemUpdate.Price = Math.Round(itemUpdate.Price, 2);
+            }
 
-            itemUpdate = await _itemRepository.UpdateAsync(itemUpdate);
-
-            return itemUpdate;
+            return _mapper.Map<ItemResponse>(await _itemRepository.UpdateAsync(item));
         }
     }
 }
