@@ -95,8 +95,11 @@ namespace PoS.Application.Services
                 throw new PoSException($"Tax with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
             }
 
+            order.Date = DateTime.Now;
             order.Status = Core.Enums.OrderStatusEnum.Draft;
             order.TotalAmount = 0;
+            order.TotalAmountWithOrderDiscount = 0;
+            order.TotalAmountBase = 0;
             order.Tip = 0;
 
             return _mapper.Map<OrderResponse>(await _orderRepository.InsertAsync(order));
@@ -138,10 +141,15 @@ namespace PoS.Application.Services
                         var discount = await _discountRepository.GetByIdAsync(service.DiscountId) ??
                             throw new PoSException($"Discount with id - {service.DiscountId} does not exist", System.Net.HttpStatusCode.BadRequest);
 
-                        discountAmount = service.Price - (service.Price * discount.DiscountPercentage);
+                        discountAmount = Math.Round(service.Price - (service.Price * discount.DiscountPercentage), 2);
                     }
 
-                    order.TotalAmount = service.Price - discountAmount;
+                    var tax = await _taxRepository.GetByIdAsync(body.TaxId) ??
+                        throw new PoSException($"Tax with id - {body.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest); ;
+
+                    order.TotalAmountBase = Math.Round(service.Price, 2);
+                    order.TotalAmountWithOrderDiscount = Math.Round(order.TotalAmountBase - discountAmount, 2);
+                    order.TotalAmount = Math.Round(order.TotalAmountBase - discountAmount + (order.TotalAmountWithOrderDiscount * tax.TaxValue / 100), 2); ;
 
                     order = await _orderRepository.InsertAsync(order);
 
@@ -276,9 +284,28 @@ namespace PoS.Application.Services
                 throw new PoSException($"Order with id - {orderId} has been paid or is confirmed and can not be updated", System.Net.HttpStatusCode.BadRequest);
             }
 
+            if (order.DiscountId is not null && oldOrder.DiscountId != order.DiscountId)
+            {
+                var discount = await _discountRepository.GetByIdAsync(order.DiscountId) ??
+                    throw new PoSException($"Discount with id - {order.DiscountId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                var tax = await _taxRepository.GetByIdAsync(order.TaxId) ??
+                    throw new PoSException($"Tax with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                order.TotalAmountBase = Math.Round(oldOrder.TotalAmountBase, 2);
+                order.TotalAmountWithOrderDiscount = Math.Round(order.TotalAmountBase - (order.TotalAmountBase * discount.DiscountPercentage), 2);
+                order.TotalAmount = Math.Round(order.TotalAmountWithOrderDiscount + (order.TotalAmountWithOrderDiscount * tax.TaxValue / 100), 2);
+            }
+            else
+            {
+                order.TotalAmountBase = oldOrder.TotalAmountBase;
+                order.TotalAmountWithOrderDiscount = oldOrder.TotalAmountWithOrderDiscount;
+                order.TotalAmount = oldOrder.TotalAmount;
+            }
+
             order.Status = oldOrder.Status;
-            order.TotalAmount = oldOrder.TotalAmount;
             order.Tip = oldOrder.Tip;
+            order.Date = oldOrder.Date;
 
             return _mapper.Map<OrderResponse>(await _orderRepository.UpdateAsync(order));
         }
@@ -364,16 +391,36 @@ namespace PoS.Application.Services
                 {
                     if (discount.ValidUntil >= DateTime.Now)
                     {
-                        orderItem.UnitPriceDiscount = (orderItem.UnitPrice * discount.DiscountPercentage);
+                        orderItem.UnitPriceDiscount = Math.Round(orderItem.UnitPrice * discount.DiscountPercentage, 2);
                     }
                 }
             }
 
-            orderItem.Subtotal = orderItem.Quantity * (orderItem.UnitPrice - orderItem.UnitPriceDiscount);
+            orderItem.Subtotal = Math.Round(orderItem.Quantity * (orderItem.UnitPrice - orderItem.UnitPriceDiscount), 2);
 
             orderItem = await _orderItemRepository.InsertAsync(orderItem);
 
-            order.TotalAmount += orderItem.Subtotal;
+            if (order.DiscountId is not null)
+            {
+                var discount = await _discountRepository.GetByIdAsync(order.DiscountId) ??
+                    throw new PoSException($"Discount with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                var tax = await _taxRepository.GetByIdAsync(order.TaxId) ??
+                    throw new PoSException($"Tax with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                order.TotalAmountBase = Math.Round(order.TotalAmountBase + orderItem.Subtotal, 2);
+                order.TotalAmountWithOrderDiscount = Math.Round(order.TotalAmountBase - (order.TotalAmountBase * discount.DiscountPercentage), 2);
+                order.TotalAmount = Math.Round(order.TotalAmountWithOrderDiscount + (order.TotalAmountWithOrderDiscount * tax.TaxValue / 100), 2);
+            }
+            else
+            {
+                var tax = await _taxRepository.GetByIdAsync(order.TaxId) ??
+                    throw new PoSException($"Tax with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                order.TotalAmountBase = Math.Round(order.TotalAmountBase + orderItem.Subtotal, 2);
+                order.TotalAmountWithOrderDiscount = order.TotalAmountBase;
+                order.TotalAmount = Math.Round(order.TotalAmountWithOrderDiscount + (order.TotalAmountWithOrderDiscount * tax.TaxValue / 100), 2);
+            }
 
             await _orderRepository.UpdateAsync(order);
 
@@ -501,16 +548,36 @@ namespace PoS.Application.Services
                 {
                     if (discount.ValidUntil >= DateTime.Now)
                     {
-                        orderItem.UnitPriceDiscount = (orderItem.UnitPrice * discount.DiscountPercentage);
+                        orderItem.UnitPriceDiscount = Math.Round(orderItem.UnitPrice * discount.DiscountPercentage, 2);
                     }
                 }
             }
 
-            orderItem.Subtotal = orderItem.Quantity * (orderItem.UnitPrice - orderItem.UnitPriceDiscount);
+            orderItem.Subtotal = Math.Round(orderItem.Quantity * (orderItem.UnitPrice - orderItem.UnitPriceDiscount), 2);
 
             orderItem = await _orderItemRepository.UpdateAsync(orderItem);
 
-            order.TotalAmount = order.TotalAmount - oldOrderItem.Subtotal + orderItem.Subtotal;
+            if (order.DiscountId is not null)
+            {
+                var discount = await _discountRepository.GetByIdAsync(order.DiscountId) ??
+                    throw new PoSException($"Discount with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                var tax = await _taxRepository.GetByIdAsync(order.TaxId) ??
+                    throw new PoSException($"Tax with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                order.TotalAmountBase = Math.Round(order.TotalAmountBase + orderItem.Subtotal, 2);
+                order.TotalAmountWithOrderDiscount = Math.Round(order.TotalAmountBase - (order.TotalAmountBase * discount.DiscountPercentage), 2);
+                order.TotalAmount = Math.Round(order.TotalAmountWithOrderDiscount + (order.TotalAmountWithOrderDiscount * tax.TaxValue / 100), 2);
+            }
+            else
+            {
+                var tax = await _taxRepository.GetByIdAsync(order.TaxId) ??
+                    throw new PoSException($"Tax with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                order.TotalAmountBase = Math.Round(order.TotalAmountBase + orderItem.Subtotal, 2);
+                order.TotalAmountWithOrderDiscount = order.TotalAmountBase;
+                order.TotalAmount = Math.Round(order.TotalAmountWithOrderDiscount + (order.TotalAmountWithOrderDiscount * tax.TaxValue / 100), 2);
+            }
 
             await _orderRepository.UpdateAsync(order);
 
@@ -532,7 +599,27 @@ namespace PoS.Application.Services
                 throw new PoSException($"Paid or confirmed order's items can not be deleted", System.Net.HttpStatusCode.BadRequest);
             }
 
-            order.TotalAmount -= orderItem.Subtotal;
+            if (order.DiscountId is not null)
+            {
+                var discount = await _discountRepository.GetByIdAsync(order.DiscountId) ??
+                    throw new PoSException($"Discount with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                var tax = await _taxRepository.GetByIdAsync(order.TaxId) ??
+                    throw new PoSException($"Tax with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                order.TotalAmountBase = Math.Round(order.TotalAmountBase - orderItem.Subtotal, 2);
+                order.TotalAmountWithOrderDiscount = Math.Round(order.TotalAmountBase - (order.TotalAmountBase * discount.DiscountPercentage), 2);
+                order.TotalAmount = Math.Round(order.TotalAmountWithOrderDiscount + (order.TotalAmountWithOrderDiscount * tax.TaxValue / 100), 2);
+            }
+            else
+            {
+                var tax = await _taxRepository.GetByIdAsync(order.TaxId) ??
+                    throw new PoSException($"Tax with id - {order.TaxId} does not exist", System.Net.HttpStatusCode.BadRequest);
+
+                order.TotalAmountBase = Math.Round(order.TotalAmountBase - orderItem.Subtotal, 2);
+                order.TotalAmountWithOrderDiscount = order.TotalAmountBase;
+                order.TotalAmount = Math.Round(order.TotalAmountWithOrderDiscount + (order.TotalAmountWithOrderDiscount * tax.TaxValue / 100), 2);
+            }
 
             await _orderRepository.UpdateAsync(order);
 
@@ -554,17 +641,6 @@ namespace PoS.Application.Services
                     System.Net.HttpStatusCode.BadRequest);
 
             var response = new ReceiptResponse();
-            double discountVal = 0;
-
-            if (order.DiscountId is not null)
-            {
-                var discount = await _discountRepository.GetFirstAsync(x => x.Id == order.DiscountId);
-
-                if (discount is not null && discount.ValidUntil >= DateTime.Now)
-                {
-                    discountVal = discount.DiscountPercentage;
-                }
-            }
 
             response.ReceiptDateTime = DateTime.Now;
             response.EmployeeName = staff.FirstName;
@@ -586,7 +662,7 @@ namespace PoS.Application.Services
                         System.Net.HttpStatusCode.BadRequest); ;
                 }
 
-                receiptLine.ItemName = item is not null ? item.ItemName : service.ServiceName;
+                receiptLine.ItemName = item is not null ? item.ItemName : service is not null ? service.ServiceName : "";
                 receiptLine.UnitPrice = orderItem.UnitPrice;
                 receiptLine.Quantity = orderItem.Quantity;
                 receiptLine.DiscountAmount = orderItem.UnitPriceDiscount;
@@ -597,19 +673,9 @@ namespace PoS.Application.Services
 
             response.ReceiptLines = receiptLines;
 
-            response.TotalAmountBeforeDiscount = order.TotalAmount;
-
-            response.TotalAmountWithDiscount = order.TotalAmount - (order.TotalAmount * discountVal);
-
-            switch (tax.Category)
-            {
-                case Core.Enums.TaxCategoryEnum.Percent:
-                    response.TotalAmountWithDiscountAfterTaxes = response.TotalAmountWithDiscount * (tax.TaxValue / 100 + 1);
-                    break;
-                case Core.Enums.TaxCategoryEnum.Flat:
-                    response.TotalAmountWithDiscountAfterTaxes = response.TotalAmountWithDiscount + tax.TaxValue;
-                    break;
-            }
+            response.TotalAmountBeforeDiscount = order.TotalAmountBase;
+            response.TotalAmountWithDiscount = order.TotalAmountWithOrderDiscount;
+            response.TotalAmountWithDiscountAfterTaxes = order.TotalAmount;
 
             if (order.Status == Core.Enums.OrderStatusEnum.Draft)
             {
@@ -634,7 +700,7 @@ namespace PoS.Application.Services
                 await _orderRepository.UpdateAsync(order);
             }
 
-            if (order.Status == Core.Enums.OrderStatusEnum.Invoiced)
+            if (order.Status == Core.Enums.OrderStatusEnum.Invoiced || order.Status == Core.Enums.OrderStatusEnum.Confirmed)
             {
                 var payments = await _paymentRepository.GetAsync(x => x.OrderId == order.Id);
 

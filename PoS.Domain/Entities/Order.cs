@@ -30,6 +30,12 @@ namespace PoS.Core.Entities
         public DateTime Date { get; set; }
 
         [Required]
+        public double TotalAmountBase { get; set; }
+
+        [Required]
+        public double TotalAmountWithOrderDiscount { get; set; }
+
+        [Required]
         public double TotalAmount { get; set; }
 
         public double? Tip { get; set; }

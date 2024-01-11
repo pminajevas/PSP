@@ -52,6 +52,8 @@ namespace PoS.Services.Services
                     System.Net.HttpStatusCode.BadRequest);
             }
 
+            item.Price = Math.Round(item.Price, 2);
+
             return _mapper.Map<ItemResponse>(await _itemRepository.InsertAsync(item));
         }
 
@@ -140,6 +142,11 @@ namespace PoS.Services.Services
                     throw new PoSException($"Item with name - {item.ItemName} and business id - {item.BusinessId} already exists",
                         System.Net.HttpStatusCode.BadRequest);
                 }
+            }
+            
+            if (oldItem.Price != itemUpdate.Price)
+            {
+                itemUpdate.Price = Math.Round(itemUpdate.Price, 2);
             }
 
             return _mapper.Map<ItemResponse>(await _itemRepository.UpdateAsync(item));

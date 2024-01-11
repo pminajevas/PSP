@@ -63,6 +63,8 @@ namespace PoS.Services.Services
                     System.Net.HttpStatusCode.BadRequest);
             }
 
+            service.Price = Math.Round(service.Price, 2);
+            
             return _mapper.Map<ServiceResponse>(await _servicesRepository.InsertAsync(service));
         }
 

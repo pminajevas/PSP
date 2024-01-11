@@ -107,7 +107,7 @@ namespace PoS.Controllers
         [HttpGet]
         [Route("/Users/Staffs")]
         [Authorize(Roles = "Admin,Mananger")]
-        public async Task<IActionResult> GetAllStaffAsync(StaffFilter filter)
+        public async Task<IActionResult> GetAllStaffAsync([FromQuery] StaffFilter filter)
         {
             return Ok(await _staffService.GetStaffAsync(filter));
         }

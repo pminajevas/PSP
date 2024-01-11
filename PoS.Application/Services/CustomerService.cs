@@ -103,6 +103,7 @@ namespace PoS.Application.Services
                     System.Net.HttpStatusCode.BadRequest);
             }
 
+            customer.Points = 0;
             customer.Password = BCrypt.Net.BCrypt.HashPassword(customer.Password);
 
             customer = await _customerRepository.InsertAsync(customer);
