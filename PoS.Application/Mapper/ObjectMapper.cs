@@ -41,6 +41,12 @@ namespace PoS.Application.Mapper
 
             CreateMap<AppointmentRequest, Appointment>();
             CreateMap<Appointment, AppointmentResponse>();
+
+            CreateMap<ItemRequest, Item>();
+            CreateMap<Item, ItemResponse>();
+
+            CreateMap<ServiceRequest, Service>();
+            CreateMap<Service, ServiceResponse>();
         }
     }
 
